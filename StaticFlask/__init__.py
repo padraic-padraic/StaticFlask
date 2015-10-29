@@ -1,9 +1,13 @@
+import markdown
 from flask import Flask, render_template
 
 from flask_bootstrap import Bootstrap
 from flask_flatpages import FlatPages
 from flask_frozen import Freezer
 
+# def two_tab_markdown(text, flatpages):
+#     extensions = flatpages.config('markdown_extensions') if flatpages else []
+#     return markdown.markdown(text, extensions, tab_length=2)
 
 class Testing():
     DEBUG = True
@@ -11,6 +15,7 @@ class Testing():
     FREEZER_DESTINATION = '../Files'
     FREEZER_BASE_URL = 'localhost://'
     FLATPAGES_EXTENSION = '.md'
+#    FLATPAGES_HTML_RENDERER = two_tab_markdown
 
 class Config(Testing):
     DEBUG = False

@@ -5,17 +5,19 @@
 Evolution is described by quantum channels. A quantum channel is a **Linear, Completely Positive, Trace Preserving Map**. Each of those terms has a very precise meaning.
 
 1. Linearity
-  * A physical map must be linear. This means that for a map $\Lambda(\rho)$, $\Lambda(\rho_{a} + \rho_{b}) = \Lambda(\rho_{a}) + \Lambda(\rho_{b})$.
-  * Physical maps must have this quality because....
+  - A physical map must be linear. This means that for a map $\Lambda(\rho)$, $\Lambda(\rho_{a} + \rho_{b}) = \Lambda(\rho_{a}) + \Lambda(\rho_{b})$.
+  - Physical maps must have this quality because....
+
 2. Positivity
-  * A map acts on a densitry matrix, which has an interpretation as an ensemble of quantum states where the eigenvalues associated with each state are the probabilities of obtaining that state from a projective measurement in that basis.
-  * For this interpretation to be meaningful, the eigenvalues of the densitry matrix must all be postive $p_{i}>0 \forall i$
-  * Thus, the eigenvalues new density matrix produce by the applicaiton of the map must also have this property. A map which has this behaviour is called positive.
+  - A map acts on a densitry matrix, which has an interpretation as an ensemble of quantum states where the eigenvalues associated with each state are the probabilities of obtaining that state from a projective measurement in that basis.
+  - For this interpretation to be meaningful, the eigenvalues of the densitry matrix must all be postive $p_{i}>0 \forall i$
+  - Thus, the eigenvalues new density matrix produce by the applicaiton of the map must also have this property. A map which has this behaviour is called positive.
+
 3. 'Complete' Positivity
-  * The map must also be positive when acting on one component of an extended system.
-  * This allows for 'local' operations when we don't have access to the whole system.
+  - The map must also be positive when acting on one component of an extended system.
+  - This allows for 'local' operations when we don't have access to the whole system.
 4. Trace preservation
-  * As the eigenvalues of the density matrix are probabilities, we require it has unit trace. For probabilities to remain normalised, we thus require the map to preserve this unit trace.
+  - As the eigenvalues of the density matrix are probabilities, we require it has unit trace. For probabilities to remain normalised, we thus require the map to preserve this unit trace.
 
 ### The Partial Trace
 
