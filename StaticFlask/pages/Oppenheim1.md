@@ -1,6 +1,6 @@
 title: 'QInfo'
+published: '2015-10-10'
 
-# Quantum Information Theory 1
 
 ## Evolution
 

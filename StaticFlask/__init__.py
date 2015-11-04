@@ -38,7 +38,7 @@ def archive(page=1):
     print(posts)
     for post in posts:
         bits = post.body.split('\n')
-        post.meta['extract'] = pygmented_markdown('<br>'.join([bit for bit in bits[:10] if bit]))#post.html_renderer(post.body)
+        post.meta['extract'] = pygmented_markdown("\n".join([bit for bit in bits[:10] if bit]))#post.html_renderer(post.body)
     _next = len(_pages[page*10:(page+1)*10])>0
     return render_template('index.html', posts=posts, next=_next,
                             page=(page+1))
