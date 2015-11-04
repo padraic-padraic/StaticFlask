@@ -1,6 +1,16 @@
 {% extends 'base.html' %}
 {% block title %} Not such a cool website {% endblock %}
 {% block content %}
-<h1>Yo</h1>
-<p> $ \theta $ </p>
+<h1>My Kicking Blog Yo</h1>
+{% for post in posts %}
+  <article>
+      <h4>{{post.title}}</h4>
+      <p>{{post.extract | safe}}</p>
+  </article>
+{% endfor %}
+{% if next%}
+<a href="/{{page}}" class="mdl-button mdl-js-button mdl-button--raised">
+  Next
+</a>
+{% endif %}
 {% endblock %}

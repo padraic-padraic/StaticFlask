@@ -19,9 +19,46 @@
       {% block scripts %}
       {% endblock %}
     {% endblock %}
+    <style>
+    html,body{
+      margin: 0px;
+      padding: 0px;
+    }
+    .wrap{
+      margin: 0px;
+      padding: 0px;
+    }
+      .sidebar {
+        position: fixed;
+        width:15%;
+        height:100%;
+        background-color: #98D6D6;
+        margin-top: 0%;
+        padding-top: 0%;
+      }
+      .main {
+        margin-top: 0%;
+        padding-top: 0%;
+        margin-left: 15%;
+        text-align: left;
+      }
+      #content{
+        padding-left: 5px;
+        float:left
+      }
+    </style>
   </head>
   <body>
-    {% block content %}
-    {% endblock %}
-  </body>  
+    <div class="wrap">
+      <div class="sidebar">
+        <p>Boop</p>
+      </div>
+      <section class="main">
+        <article id="content">
+          {% block content %}
+          {% endblock %}
+        </article>
+      </section>
+    </div>
+  </body>
 </html>

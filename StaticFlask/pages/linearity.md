@@ -1,4 +1,6 @@
 title: Linearity
+published: '2015-10-10'
+
 
 Linearity in Quantum Physics
 =========
