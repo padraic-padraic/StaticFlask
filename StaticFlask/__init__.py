@@ -35,10 +35,12 @@ def archive(page=1):
     _pages = sorted((p for p in pages if 'published' in p.meta),
                     reverse=True, key=lambda p: p.meta['published'])
     posts = _pages[(page-1)*10:page*10]
-    print(posts)
     for post in posts:
-        bits = post.body.split('\n')
-        post.meta['extract'] = pygmented_markdown("\n".join([bit for bit in bits[:10] if bit]))#post.html_renderer(post.body)
+        bits = post.body.split('\n')[:10]
+        for index, bit in enumerate(bits):
+            if not bit:
+                bits[index] = "\n"
+        post.meta['extract'] = pygmented_markdown("\n".join(bits)x)
     _next = len(_pages[page*10:(page+1)*10])>0
     return render_template('index.html', posts=posts, next=_next,
                             page=(page+1))

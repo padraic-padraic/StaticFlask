@@ -6,6 +6,7 @@
   <article>
       <h4>{{post.title}}</h4>
       <p>{{post.extract | safe}}</p>
+      <a href="/{{ post.path }}" class="mdl-button mdl-js-button mdl-button--raised">Read more</a>
   </article>
 {% endfor %}
 {% if next%}
