@@ -24,6 +24,7 @@ class Testing():
 class Config(Testing):
     DEBUG = False
     FREEZER_BASE_URL = 'http://calpin.me'
+    FREEZER_DESTINATION = '/var/www/Static'
 
 pages = FlatPages()
 app = Flask(__name__)
@@ -47,7 +48,6 @@ def page():
         if filename != 'about':
             yield{'path':filename.split('.')[0]}
 
-@app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
     _pages = sorted((p for p in pages if 'published' in p.meta),
@@ -60,7 +60,7 @@ def archive(_page=1):
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', posts=posts, next=_next)
+    return render_template('index.html', posts=posts, next=_next, next_page=_page+1)
 
 @app.route('/<path:path>/')
 def page(path):
