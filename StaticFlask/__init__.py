@@ -16,6 +16,8 @@ class Testing():
     FREEZER_BASE_URL = 'http://localhost'
     FREEZER_REMOVE_EXTRA_FILES = True
     FLATPAGES_EXTENSION = '.md'
+    TWITTER = 'https://twitter.com/padraic_padraic'
+    GITHUB = 'https://github.com/padraic-padraic'
     APP_DIR = path.dirname(path.abspath(__file__))
 #    FLATPAGES_HTML_RENDERER = two_tab_markdown
 
@@ -32,6 +34,7 @@ freezer = Freezer(app)
 @freezer.register_generator
 def archive():
     posts = pages._pages
+    posts = (p for p in posts if p.path != 'about')
     _pages= int(len(posts)/10)
     if _pages == 0:
         yield {'_page': 1}
@@ -41,9 +44,9 @@ def archive():
 
 @freezer.register_generator
 def page():
-    for filename  in listdir(app.config['APP_DIR']+'/pages'):
+    for filename in listdir(app.config['APP_DIR']+'/pages'):
         yield{'path':filename.split('.')[0]}
-    
+
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
@@ -51,22 +54,25 @@ def archive(_page=1):
                     reverse=True, key=lambda p: p.meta['published'])
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
-        bits = post.body.split('\n')[:10]
+        bits = post.body.split('\n')[:5]
         for index, bit in enumerate(bits):
             if not bit:
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', posts=posts, next=_next,
-                            page=(_page+1))
+    return render_template('index.html', posts=posts, next=_next)
 
 @app.route('/<path:path>/')
 def page(path):
     _page = pages.get_or_404(path)
- #   _page.html_renderer = pages._smart_html_renderer(two_tab_markdown)
     return render_template('page.html', page=_page)
+
+@app.route('/about')
+def about():
+    p = pages.get_or_404('about')
+    return render_template('page.html', page=p)
 
 if __name__ == '__main__':
     app.config.from_object(Testing())
-    freezer.freeze()
-    #app.run()
+    # freezer.freeze()
+    app.run(port=5003)

@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
-{% block title %} Not such a cool website {% endblock %}
+{% block title %} An okay website I guess{% endblock %}
 {% block content %}
-<h1>My Kicking Blog Yo</h1>
 {% for post in posts %}
-  <article>
-      <h4>{{post.title}}</h4>
-      <p>{{post.extract | safe}}</p>
-      <a href="{{ url_for('page', path=post.path) }}" class="mdl-button mdl-js-button mdl-button--raised">Read more</a>
+  <article class="post">
+      <h4 class="post-title">{{post.title}}</h4>
+      <p class="post-extract">{{post.extract | safe}}</p>
+      <a href="{{ url_for('page', path=post.path) }}" class="button">Read more</a>
   </article>
 {% endfor %}
 {% if next%}

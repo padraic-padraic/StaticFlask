@@ -7,9 +7,8 @@
         {% block meta %}
         {% endblock %}
       </meta>
-      <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.indigo-pink.min.css">
-      <script src="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.min.js"></script>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+      <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
       <script type="text/x-mathjax-config">
           MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
       </script>
@@ -21,18 +20,27 @@
     {% endblock %}
     <style>
     html,body{
+      font-family:Roboto,sans-serif;
       margin: 0px;
       padding: 0px;
+    }
+    h1{
+      font-size: 2.5em;
+    }
+    a {
+      text-decoration: none;
+      color:inherit;
     }
     .wrap{
       margin: 0px;
       padding: 0px;
+
     }
       .sidebar {
         position: fixed;
         width:15%;
         height:100%;
-        background-color: #98D6D6;
+        background-color: #97D6D6;
         margin-top: 0%;
         padding-top: 0%;
       }
@@ -42,23 +50,99 @@
         margin-left: 15%;
         text-align: left;
       }
+      #title{
+        padding-left: 15px;
+        width:100%;
+        margin-top: 0px;
+        padding-bottom: 0px;
+        padding-top: 0px;
+        float:left;
+        border-bottom: 10px solid #F0F0F0
+      }
       #content{
         padding-left: 5px;
-        float:left
+        float:left;
+        /*background-color: #F0F0F0;*/
+      }
+      .post{
+        /*padding-bottom: 10px;*/
+        /*margin:5px;*/
+        padding: 5px 10px 20px 10px; 
+        background-color: white;
+        border-bottom: 5px solid #F0F0F0;
+      }
+      .button {
+        border-radius: 10%;
+        padding: 10px;
+        margin-bottom: 10px; 
+        background-color: #DDDDDD;
+        font-weight: bold;
+      }
+      #av{
+        border: 2px solid black;
+        border-radius: 50%;
+        margin-top: 5%;
+        margin-left: 15%;
+        width: 70%;
+        heigh:40%;
+      }
+      #clear{
+        margin-top: 40%;
+        display: block;
+      }
+      #shares {
+        padding-left:27.5%;
+        margin-bottom: 20%;
+      }
+      .post-title{
+        text-decoration: underline;
+      } 
+      .section{
+        font-size: 3em;
+        padding-top: 2.5%;
+        padding-bottom: 2.5%;
+        font-weight: bold;
+        background-color: #75BFBF;
+        font-variant: small-caps;
+        margin-bottom: 10%;
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <div class="wrap">
       <div class="sidebar">
-        <p>Boop</p>
+        <div id="clear"></div>
+        <a href="{{url_for('archive')}}"><img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
+        <div id="shares">
+          <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-3x"></i></a>
+          <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-3x"></i></a>
+        </div>
+        <div id="cv" class="section"><a href="/about">About</a></div>
+        <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>
       </div>
       <section class="main">
-        <article id="content">
+      {% if page is defined %}
+        <h1 id="title">{{page.title}}</h1>
+      {% else %}
+        <h1 id="title"> My blog is a blog </h1>
+      {% endif %}
+        <div id="content">
           {% block content %}
           {% endblock %}
-        </article>
+        </div>
       </section>
     </div>
+    <script type="text/javascript">
+       page = window.location.pathname;
+       if (page == '/about' || page == '/about/'){
+        current = document.getElementById('cv');
+        current.style.textDecoration = "underline";
+       }
+       else {
+        current = document.getElementById('blog');
+        current.style.textDecoration = "underline";
+       }
+    </script>
   </body>
 </html>

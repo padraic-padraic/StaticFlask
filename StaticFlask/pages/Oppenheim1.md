@@ -1,11 +1,8 @@
 title: 'QInfo'
 published: '2015-10-10'
 
-
 ## Evolution
-
 Evolution is described by quantum channels. A quantum channel is a **Linear, Completely Positive, Trace Preserving Map**. Each of those terms has a very precise meaning.
-
 1. Linearity
     - A physical map must be linear. This means that for a map $\Lambda(\rho)$, $\Lambda(\rho_{a} + \rho_{b}) = \Lambda(\rho_{a}) + \Lambda(\rho_{b})$.
     - Physical maps must have this quality because....

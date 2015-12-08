@@ -3,3 +3,4 @@ python-markdown-math/*
 venv/*
 Files/*
 *~
+node_modules/*
