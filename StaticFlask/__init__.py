@@ -1,17 +1,13 @@
 import markdown
 
-from flask import Flask, render_template
+from flask import Flask, render_template, render_template_string
 from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
 from os import listdir, path
 
-# def two_tab_markdown(text, _pages=None):
-#     extensions = _pages.config('markdown_extensions') if _pages else []
-#     return markdown.markdown(text, extensions=extensions, tab_length=4)
-
-def my_renderer(text):
-    prerendered_body = render_template_string(text)
-    return pygmented_markdown(prerendered_body)
+# def renderer(text):
+#     prerendered_body = render_template_string(text)
+#     return pygmented_markdown(prerendered_body)
 
 class Testing():
     DEBUG = True
@@ -20,7 +16,6 @@ class Testing():
     FREEZER_BASE_URL = 'http://localhost'
     FREEZER_REMOVE_EXTRA_FILES = True
     FLATPAGES_EXTENSION = '.md'
-    FLATPAGES_HTML_RENDERER = my_renderer
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
     APP_DIR = path.dirname(path.abspath(__file__))
@@ -35,6 +30,7 @@ app = Flask(__name__)
 app.config.from_object(Config())
 pages.init_app(app)
 freezer = Freezer(app)
+# app.config['FLATPAGES_HTML_RENDERER']=renderer
 
 @freezer.register_generator
 def archive():

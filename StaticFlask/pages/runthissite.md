@@ -34,6 +34,6 @@ give or take a couple of config flags to point to where the markdown files are o
 
 I also decided (again, as I wanted to do absolutely everything in this project) that I was going to self-host, using my old Raspberry Pi Model-B (with 256MB of RAM; it's an *old* Pi). So, to keep things light, I figured this would be a static-file site, pre-rendering all the pages so they can be served up with minimal effort on the Pi's partx.
 
-![The thing itself on my shamefully dusty shelves]({{url_for('static','pi.jpg')}})
+![Dusty shelves...](/static/images/pi.jpg)
 
 `Frozen-Flask` came to the rescue with exactly the functionality I needed. This took a little bit more configuration than `FlatPages` to get going, mostly to set up pagination on the main index which is sort of putting the cart before the horse as this blog has almost no content as it stands. 
