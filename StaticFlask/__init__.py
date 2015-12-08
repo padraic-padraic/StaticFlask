@@ -1,7 +1,7 @@
 import markdown
 
 from flask import Flask, render_template
-from flask_flatpages import FlatPages, pygmented_markdown
+from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
 from os import listdir, path
 
@@ -9,17 +9,21 @@ from os import listdir, path
 #     extensions = _pages.config('markdown_extensions') if _pages else []
 #     return markdown.markdown(text, extensions=extensions, tab_length=4)
 
+def my_renderer(text):
+    prerendered_body = render_template_string(text)
+    return pygmented_markdown(prerendered_body)
+
 class Testing():
     DEBUG = True
-    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'mdx_math', 'sane_lists']
+    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'mdx_math', 'sane_lists', 'mdx_gfm']
     FREEZER_DESTINATION = '../../Files'
     FREEZER_BASE_URL = 'http://localhost'
     FREEZER_REMOVE_EXTRA_FILES = True
     FLATPAGES_EXTENSION = '.md'
+    FLATPAGES_HTML_RENDERER = my_renderer
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
     APP_DIR = path.dirname(path.abspath(__file__))
-#    FLATPAGES_HTML_RENDERER = two_tab_markdown
 
 class Config(Testing):
     DEBUG = False
@@ -56,7 +60,7 @@ def archive(_page=1):
                     reverse=True, key=lambda p: p.meta['published'])
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
-        bits = post.body.split('\n')[:5]
+        bits = post.body.split('\n')[:10]
         for index, bit in enumerate(bits):
             if not bit:
                 bits[index] = "\n"
@@ -74,7 +78,11 @@ def about():
     _page = pages.get_or_404('about')
     return render_template('page.html', page=_page)
 
+@app.route('/pygments.css')
+def pygments_css():
+    return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
+
 if __name__ == '__main__':
-    # app.config.from_object(Testing())
-    freezer.freeze()
-    # app.run(port=5003)
+    app.config.from_object(Testing())
+    #freezer.freeze()
+    app.run(port=5003)
