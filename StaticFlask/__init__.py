@@ -33,8 +33,7 @@ freezer = Freezer(app)
 
 @freezer.register_generator
 def archive():
-    posts = pages._pages
-    posts = (p for p in posts if p.path != 'about')
+    posts = [p for p in pages if p.path != 'about']
     _pages= int(len(posts)/10)
     if _pages == 0:
         yield {'_page': 1}
@@ -45,7 +44,8 @@ def archive():
 @freezer.register_generator
 def page():
     for filename in listdir(app.config['APP_DIR']+'/pages'):
-        yield{'path':filename.split('.')[0]}
+        if filename != 'about':
+            yield{'path':filename.split('.')[0]}
 
 @app.route('/')
 @app.route('/<int:_page>/')
@@ -67,12 +67,12 @@ def page(path):
     _page = pages.get_or_404(path)
     return render_template('page.html', page=_page)
 
-@app.route('/about')
+@app.route('/about/')
 def about():
-    p = pages.get_or_404('about')
-    return render_template('page.html', page=p)
+    _page = pages.get_or_404('about')
+    return render_template('page.html', page=_page)
 
 if __name__ == '__main__':
-    app.config.from_object(Testing())
-    # freezer.freeze()
-    app.run(port=5003)
+    # app.config.from_object(Testing())
+    freezer.freeze()
+    # app.run(port=5003)

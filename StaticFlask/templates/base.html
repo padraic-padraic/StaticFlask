@@ -26,10 +26,14 @@
     }
     h1{
       font-size: 2.5em;
+      font-variant: small-caps;
     }
     a {
       text-decoration: none;
       color:inherit;
+    }
+    .post a{
+      text-decoration: underline;
     }
     .wrap{
       margin: 0px;
@@ -64,12 +68,14 @@
         float:left;
         /*background-color: #F0F0F0;*/
       }
+      .post-wrapper{
+        border-bottom: 5px solid #F0F0F0;
+      }
       .post{
         /*padding-bottom: 10px;*/
         /*margin:5px;*/
         padding: 5px 10px 20px 10px; 
         background-color: white;
-        border-bottom: 5px solid #F0F0F0;
       }
       .button {
         border-radius: 10%;
@@ -91,10 +97,11 @@
         display: block;
       }
       #shares {
-        padding-left:27.5%;
+        padding-left:25%;
         margin-bottom: 20%;
       }
       .post-title{
+        text-size:5em;
         text-decoration: underline;
       } 
       .section{
@@ -108,6 +115,7 @@
         text-align: center;
       }
     </style>
+    <meta name="theme-color" content="#97D6D6">
   </head>
   <body>
     <div class="wrap">
@@ -118,7 +126,7 @@
           <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-3x"></i></a>
           <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-3x"></i></a>
         </div>
-        <div id="cv" class="section"><a href="/about">About</a></div>
+        <div id="cv" class="section"><a href="{{url_for('about')}}">About</a></div>
         <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>
       </div>
       <section class="main">
