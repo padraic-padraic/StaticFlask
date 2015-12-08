@@ -1,5 +1,5 @@
-title: What Runs this Site
-published: 2015-12-08
+title: 'What Runs this Site'
+published: '2015-12-08'
 
 One of the problems I had when I first learnt how to programme was that I hated using other peoples' code. I guess I was falling for the [myth of the genius programmer](http://www.youtube.com/watch?v=0SARbwvhupQ). I truly felt that I had to understand everything, from the ground up, and obviosuly that made even the simplest tasks totally daunting. It wasn't until I joined [voXup](https://voXup.co.uk) that I got comfortable with building on existing platforms.
 

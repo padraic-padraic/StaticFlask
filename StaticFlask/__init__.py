@@ -48,6 +48,8 @@ def page():
         if filename != 'about':
             yield{'path':filename.split('.')[0]}
 
+
+@app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
     _pages = sorted((p for p in pages if 'published' in p.meta),
