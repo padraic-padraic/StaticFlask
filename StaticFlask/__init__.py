@@ -5,10 +5,6 @@ from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
 from os import listdir, path
 
-# def renderer(text):
-#     prerendered_body = render_template_string(text)
-#     return pygmented_markdown(prerendered_body)
-
 class Testing():
     DEBUG = True
     FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'mdx_math', 'sane_lists', 'mdx_gfm']
@@ -30,7 +26,6 @@ app = Flask(__name__)
 app.config.from_object(Config())
 pages.init_app(app)
 freezer = Freezer(app)
-# app.config['FLATPAGES_HTML_RENDERER']=renderer
 
 @freezer.register_generator
 def archive():
