@@ -15,6 +15,8 @@ class Testing():
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
     APP_DIR = path.dirname(path.abspath(__file__))
+    SIDEBAR_TITLE = "Padraic Calpin?"
+    PAGE_TITLE = 'My blog is a blog'
 
 class Config(Testing):
     DEBUG = False
@@ -57,7 +59,8 @@ def archive(_page=1):
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', posts=posts, next=_next, next_page=_page+1)
+    return render_template('index.html', posts=posts, next=_next, nextpage=_page+1,
+                           prevpage=_page-1)
 
 @app.route('/<path:path>/')
 def page(path):

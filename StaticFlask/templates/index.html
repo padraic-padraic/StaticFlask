@@ -11,8 +11,11 @@
 </div>
 {% endfor %}
 {% if next %}
-{% set prev_page = next_page -1 %}
-<a id="prev" href="{{ url_for(prev_page)}}">Prev page </a>
-<a id="next" href="{{ url_for(next_page) }}" class="button">Next page</a>
+<div id="buttons">
+{% if prevpage > 0 %}
+<a id="prev" href="{{ url_for('archive',_page=prevpage)}}" class="button">Prev page </a>
+{% endif%}
+<a id="next" href="{{ url_for('archive',_page=nextpage) }}" class="button">Next page</a>
+</div>
 {% endif %}
 {% endblock %}

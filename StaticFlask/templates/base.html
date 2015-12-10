@@ -26,7 +26,7 @@
       .codehilite {
         overflow: auto;
         width: 100%;
-        font-size: .45em;
+        font-size: .4em;
       }
     }
     html,body{
@@ -36,7 +36,7 @@
       font-size: 16px;
     }
     h1{
-      /*font-size: 2.5em;*/
+      font-weight: bold;
       font-variant: small-caps;
     }
     a {
@@ -119,13 +119,17 @@
       #clear{
         margin-top: 40%;
         display: block;
+        text-align: center;
+        font-weight: bold;
       }
       #shares {
-        padding-left:25%;
+        width:17.5%;
+        margin-left: auto;
+        margin-right: auto;
         margin-bottom: 20%;
       }
       .post-title{
-        text-size:5em;
+        text-size:2em;
         text-decoration: underline;
       } 
       .section{
@@ -133,8 +137,14 @@
         padding-bottom: 2.5%;
         background-color: #75BFBF;
         font-variant: small-caps;
+        font-weight: bold;
+        /*font-size: 2em;*/
         margin-bottom: 10%;
         text-align: center;
+      }
+      .buttons{
+        padding-top: 10px;
+        height:10%;
       }
       #prev{
         float:left;
@@ -149,7 +159,9 @@
   <body>
     <div class="wrap">
       <div class="sidebar">
-        <div id="clear"></div>
+        <div id="clear">
+          {{config.SIDEBAR_TITLE}}
+        </div>
         <a href="{{url_for('archive')}}"><img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
         <div id="shares">
           <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-1x"></i></a>
@@ -162,7 +174,7 @@
       {% if page is defined %}
         <h1 id="title">{{page.title}}</h1>
       {% else %}
-        <h1 id="title"> My blog is a blog </h1>
+        <h1 id="title"> {{config.PAGE_TITLE}} </h1>
       {% endif %}
         <div id="content">
           {% block content %}
