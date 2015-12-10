@@ -35,12 +35,12 @@ def archive():
         yield {'_page': 1}
     else:
         for n in range(1,_pages):
-            yield {'_page': 1}
+            yield {'_page': n}
 
 @freezer.register_generator
 def page():
     for filename in listdir(app.config['APP_DIR']+'/pages'):
-        if filename != 'about':
+        if filename != 'about' or filname.split('.')[1] != 'md':
             yield{'path':filename.split('.')[0]}
 
 
@@ -74,6 +74,6 @@ def pygments_css():
     return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
 
 if __name__ == '__main__':
-    app.config.from_object(Testing())
-    #freezer.freeze()
-    app.run(port=5003)
+    #app.config.from_object(Testing())
+    freezer.freeze()
+    #app.run(port=5003)
