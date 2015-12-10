@@ -48,6 +48,7 @@
         background-color: #97D6D6;
         margin-top: 0%;
         padding-top: 0%;
+        z-index: 100;
       }
       .main {
         margin-top: 0%;
@@ -63,12 +64,14 @@
         padding-top: 0px;
         position: fixed;
         background-color:white;
-        border-bottom: 10px solid #F0F0F0
+        border-bottom: 10px solid #F0F0F0;
+        z-index:100;
       }
       #content{
         margin-top: 5%;
         padding-left: 5px;
         float:left;
+        z-index: 50;
         /*background-color: #F0F0F0;*/
       }
       .post-wrapper{
@@ -119,6 +122,12 @@
         margin-bottom: 10%;
         text-align: center;
       }
+      #prev{
+        float:left;
+      }
+      #next{
+        float: right;
+      }
     </style>
     <meta name="theme-color" content="#97D6D6">
     <meta name=viewport content="width=device-width, initial-scale=1">
@@ -146,6 +155,7 @@
           {% endblock %}
         </div>
       </section>
+      <
     </div>
     <script type="text/javascript">
        page = window.location.pathname;

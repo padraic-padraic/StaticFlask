@@ -10,9 +10,9 @@
   </article>
 </div>
 {% endfor %}
-{% if next%}
-<a href="{{ url_for(next) }}" class="mdl-button mdl-js-button mdl-button--raised">
-  Next
-</a>
+{% if next %}
+{% set prev_page = next_page -1 %}
+<a id="prev" href="{{ url_for(prev_page)}}">Prev page </a>
+<a id="next" href="{{ url_for(next_page) }}" class="button">Next page</a>
 {% endif %}
 {% endblock %}
