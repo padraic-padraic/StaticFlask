@@ -75,5 +75,4 @@ def pygments_css():
 
 if __name__ == '__main__':
     app.config.from_object(Testing())
-    #freezer.freeze()
     app.run(port=5003)
