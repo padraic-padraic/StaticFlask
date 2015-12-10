@@ -68,11 +68,9 @@
         z-index:100;
       }
       #content{
-        margin-top: 5%;
         padding-left: 5px;
-        float:left;
         z-index: 50;
-        /*background-color: #F0F0F0;*/
+        float:left;
       }
       .post-wrapper{
        border-bottom: 5px solid #F0F0F0;
@@ -158,6 +156,9 @@
       <
     </div>
     <script type="text/javascript">
+      off = document.getElementById('title').offsetHeight / 1.5;
+      document.getElementById('content').style.marginTop = off.toString() + 'px';
+      
        page = window.location.pathname;
        if (page == '/about' || page == '/about/'){
         current = document.getElementById('cv');
