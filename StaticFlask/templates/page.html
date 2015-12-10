@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}{{page.title}}{% endblock %}
 {% block content %}
-<article class="post">
-    {{ page }}
-</article>
+<div class="post-wrapper">
+    <article class="post">
+        {{ page }}
+    </article>
+</div>
 
 {% endblock %}
