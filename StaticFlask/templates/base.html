@@ -3,10 +3,6 @@
   <head>
     {% block head %}
       <title>{% block title %} {% endblock%}</title>
-      <meta>
-        {% block meta %}
-        {% endblock %}
-      </meta>
       <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
@@ -24,6 +20,7 @@
       font-family:Roboto,sans-serif;
       margin: 0px;
       padding: 0px;
+      font-size: 16px;
     }
     h1{
       font-size: 2.5em;
@@ -64,10 +61,12 @@
         margin-top: 0px;
         padding-bottom: 0px;
         padding-top: 0px;
-        float:left;
+        position: fixed;
+        background-color:white;
         border-bottom: 10px solid #F0F0F0
       }
       #content{
+        margin-top: 5%;
         padding-left: 5px;
         float:left;
         /*background-color: #F0F0F0;*/
@@ -113,7 +112,6 @@
         text-decoration: underline;
       } 
       .section{
-        font-size: 3em;
         padding-top: 2.5%;
         padding-bottom: 2.5%;
         background-color: #75BFBF;
@@ -123,15 +121,16 @@
       }
     </style>
     <meta name="theme-color" content="#97D6D6">
-  </head>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+</head>
   <body>
     <div class="wrap">
       <div class="sidebar">
         <div id="clear"></div>
         <a href="{{url_for('archive')}}"><img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
         <div id="shares">
-          <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-3x"></i></a>
-          <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-3x"></i></a>
+          <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-1x"></i></a>
+          <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-1x"></i></a>
         </div>
         <div id="cv" class="section"><a href="{{url_for('about')}}">About</a></div>
         <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>

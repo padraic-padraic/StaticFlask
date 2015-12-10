@@ -35,12 +35,12 @@ def archive():
         yield {'_page': 1}
     else:
         for n in range(1,_pages):
-            yield {'_page': 1}
+            yield {'_page': n}
 
 @freezer.register_generator
 def page():
     for filename in listdir(app.config['APP_DIR']+'/pages'):
-        if filename != 'about':
+        if filename != 'about' or filname.split('.')[1] != 'md':
             yield{'path':filename.split('.')[0]}
 
 
