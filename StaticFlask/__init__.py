@@ -21,7 +21,7 @@ class Testing():
 class Config(Testing):
     DEBUG = False
     FREEZER_BASE_URL = 'http://calpin.me'
-    FREEZER_DESTINATION = '/var/www/Static'
+    # FREEZER_DESTINATION = '/var/www/Static'
 
 pages = FlatPages()
 app = Flask(__name__)
@@ -42,7 +42,7 @@ def archive():
 @freezer.register_generator
 def page():
     for filename in listdir(app.config['APP_DIR']+'/pages'):
-        if filename != 'about' or filname.split('.')[1] != 'md':
+        if filename != 'about' or filename.split('.')[1] != 'md':
             yield{'path':filename.split('.')[0]}
 
 
