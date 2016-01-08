@@ -11,6 +11,7 @@ class Testing():
     FREEZER_DESTINATION = '../../Files'
     FREEZER_BASE_URL = 'http://localhost'
     FREEZER_REMOVE_EXTRA_FILES = True
+    FLATPAGES_ROOT = '/Users/padraic/Documents/BlogPages'
     FLATPAGES_EXTENSION = '.md'
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
@@ -53,11 +54,15 @@ def archive(_page=1):
                     reverse=True, key=lambda p: p.meta['published'])
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
-        bits = post.body.split('\n')[:10]
+        bits = post.body.split('\n')
+        if bits == bits[:3]:
+            post.meta['read_more'] = False
+        else:
+            post.meta['read_more'] = True
         for index, bit in enumerate(bits):
             if not bit:
                 bits[index] = "\n"
-        post.meta['extract'] = pygmented_markdown("\n".join(bits))
+        post.meta['extract'] = pygmented_markdown("\n".join(bits[:3]))
     _next = len(_pages[_page*10:(_page+1)*10])>0
     return render_template('index.html', posts=posts, next=_next, nextpage=_page+1,
                            prevpage=_page-1)

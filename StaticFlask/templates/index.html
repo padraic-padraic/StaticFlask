@@ -4,9 +4,11 @@
 {% for post in posts %}
 <div class="post-wrapper">
   <article class="post">
-      <h3 class="post-title">{{post.title}}</h3>
+      <a href="{{ url_for('page', path=post.path) }}"><h3 class="post-title">{{post.title}}</h3></a>
       <p class="post-extract">{{post.extract | safe}}</p>
+      {% if post.read_more %}
       <a href="{{ url_for('page', path=post.path) }}" class="button">Read more</a>
+      {% endif %}
   </article>
 </div>
 {% endfor %}

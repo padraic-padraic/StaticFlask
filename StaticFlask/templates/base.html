@@ -82,15 +82,17 @@
       }
       #title{
         padding-left: 10px;
-        width:100%;
+        width:99%;
+        border-bottom: 7px solid #DDDDDD;
         margin-top: 0px;
+        padding-left: 2px;
         padding-bottom: 0px;
         padding-top: 0px;
         position: fixed;
         background-color:white;
         float: left;
-        border-bottom: 10px solid #F0F0F0;
-        z-index:100;
+        z-index: 100;
+        white-space: pre-line;
       }
       #content{
         padding-left: 5px;
@@ -99,7 +101,7 @@
         overflow: hidden;
       }
       .post-wrapper{
-       border-bottom: 5px solid #F0F0F0;
+       border-bottom: 5px solid #DDDDDD;
        width:100%;
       }
       .post{
@@ -118,6 +120,7 @@
         margin-bottom: 10px; 
         background-color: #DDDDDD;
         font-weight: bold;
+        font-size: .75em;
       }
       #av{
         border: 2px solid black;
@@ -170,10 +173,11 @@
   <body>
     <div class="wrap">
       <div class="sidebar">
+      <a href="{{url_for('archive')}}">
         <div id="clear">
           {{config.SIDEBAR_TITLE}}
         </div>
-        <a href="{{url_for('archive')}}"><img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
+        <img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
         <div id="shares">
           <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-1x"></i></a>
           <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-1x"></i></a>
@@ -182,11 +186,11 @@
         <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>
       </div>
       <section class="main">
-      {% if page is defined %}
-        <h1 id="title">{{page.title}}</h1>
-      {% else %}
-        <h1 id="title"> {{config.PAGE_TITLE}} </h1>
-      {% endif %}
+        {% if page is defined %}
+          <h1 id="title">{{page.title}}</h1>
+        {% else %}
+          <h1 id="title"> {{config.PAGE_TITLE}} </h1>
+        {% endif %}
         <div id="content">
           {% block content %}
           {% endblock %}
