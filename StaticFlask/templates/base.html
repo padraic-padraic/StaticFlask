@@ -21,14 +21,6 @@
       {% endblock %}
     {% endblock %}
     <style>
-    @media(max-width:768px){
-      body {font-size:0.8em;}
-      .codehilite {
-        overflow: auto;
-        width: 100%;
-        font-size: .4em;
-      }
-    }
     html,body{
       font-family:Roboto,sans-serif;
       margin: 0px;
@@ -42,6 +34,10 @@
     a {
       text-decoration: none;
       color:inherit;
+    }
+    .sidebar a:hover{
+      font-size: 1.1em;
+      
     }
     a:hover{
       font-weight:bold;
@@ -123,15 +119,17 @@
         font-size: .75em;
       }
       #av{
+        display: block;
         border: 2px solid black;
         border-radius: 50%;
-        margin-top: 5%;
-        margin-left: 15%;
         width: 70%;
         heigh:40%;
+        margin-left: auto;
+        margin-right: auto;
       }
       #clear{
         margin-top: 40%;
+        margin-bottom: 5%;
         display: block;
         text-align: center;
         font-weight: bold;
@@ -166,6 +164,26 @@
       #next{
         float: right;
       }
+    @media(max-width:768px){
+      body {font-size:0.8em;}
+      .codehilite {
+        overflow: auto;
+        width: 100%;
+        font-size: .4em;
+      }
+    }
+    @media(min-width:768px){
+      body {font-size:0.8em;}
+      .codehilite {
+        overflow: auto;
+        width: 100%;
+        font-size: 1em;
+      }
+      .button{
+        font-size: 1em;
+      }
+      
+    }
     </style>
     <meta name="theme-color" content="#97D6D6">
     <meta name=viewport content="width=device-width, initial-scale=1">
