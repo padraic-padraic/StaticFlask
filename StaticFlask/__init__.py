@@ -22,7 +22,8 @@ class Testing():
 class Config(Testing):
     DEBUG = False
     FREEZER_BASE_URL = 'http://calpin.me'
-    # FREEZER_DESTINATION = '/var/www/Static'
+    FLATPAGES_ROOT = './pages'
+    FREEZER_DESTINATION = '/var/www/Static'
 
 pages = FlatPages()
 app = Flask(__name__)
