@@ -7,7 +7,8 @@ from os import listdir, path
 
 class Testing():
     DEBUG = True
-    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'mdx_math', 'mdx_gfm']
+    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'mdx_math', 'mdx_gfm',
+                                     'headerid']
     FREEZER_DESTINATION = '../../Files'
     FREEZER_BASE_URL = 'http://localhost'
     FREEZER_REMOVE_EXTRA_FILES = True

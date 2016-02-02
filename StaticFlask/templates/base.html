@@ -37,7 +37,7 @@
     }
     .sidebar a:hover{
       font-size: 1.1em;
-      
+
     }
     a:hover{
       font-weight:bold;
@@ -95,6 +95,7 @@
         z-index: 50;
         float:left;
         overflow: hidden;
+        background-color: white;
       }
       .post-wrapper{
        border-bottom: 5px solid #DDDDDD;
@@ -103,7 +104,7 @@
       .post{
         /*padding-bottom: 10px;*/
         /*margin:5px;*/
-        padding: 5px 10px 20px 5px; 
+        padding: 5px 25px 20px 5px;
         background-color: white;
       }
       .post img{
@@ -113,7 +114,7 @@
       .button {
         border-radius: 10%;
         padding: 10px;
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
         background-color: #DDDDDD;
         font-weight: bold;
         font-size: .75em;
@@ -135,7 +136,7 @@
         font-weight: bold;
       }
       #shares {
-        width:17.5%;
+        width:25%;
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 20%;
@@ -143,7 +144,7 @@
       .post-title{
         text-size:2em;
         text-decoration: underline;
-      } 
+      }
       .section{
         padding-top: 2.5%;
         padding-bottom: 2.5%;
@@ -173,7 +174,6 @@
       }
     }
     @media(min-width:768px){
-      body {font-size:0.8em;}
       .codehilite {
         overflow: auto;
         width: 100%;
@@ -182,7 +182,10 @@
       .button{
         font-size: 1em;
       }
-      
+      #content{
+          margin-left: 3%;
+          margin-right: 3%;
+      }
     }
     </style>
     <meta name="theme-color" content="#97D6D6">
@@ -197,13 +200,13 @@
         </div>
         <img id="av" src={{ url_for('static', filename='av.jpg')}}></a>
         <div id="shares">
-          <a href="{{config.TWITTER}}" <i class="fa fa-twitter-square fa-1x"></i></a>
-          <a href="{{config.GITHUB}}" <i class="fa fa-github-square fa-1x"></i></a>
+          <a href="{{config.TWITTER}}" <i class="icon fa fa-twitter-square fa-1x"></i></a>
+          <a href="{{config.GITHUB}}" <i class="icon fa fa-github-square fa-1x"></i></a>
         </div>
         <div id="cv" class="section"><a href="{{url_for('about')}}">About</a></div>
         <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>
       </div>
-      <section class="main">
+      <div class="main">
         {% if page is defined %}
           <h1 id="title">{{page.title}}</h1>
         {% else %}
@@ -213,12 +216,12 @@
           {% block content %}
           {% endblock %}
         </div>
-      </section>
+    </div>
     </div>
     <script type="text/javascript">
       off = document.getElementById('title').offsetHeight / 1.5;
       document.getElementById('content').style.marginTop = off.toString() + 'px';
-      
+
        page = window.location.pathname;
        if (page == '/about' || page == '/about/'){
         current = document.getElementById('cv');
