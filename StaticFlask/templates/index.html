@@ -2,15 +2,14 @@
 {% block title %} An okay website I guess{% endblock %}
 {% block content %}
 {% for post in posts %}
-<div class="post-wrapper">
   <article class="post">
-      <a href="{{ url_for('page', path=post.path) }}"><h3 class="post-title">{{post.title}}</h3></a>
+      <a href="{{ url_for('page', path=post.path) }}"><h1>{{post.title}}</h1></a>
       <p class="post-extract">{{post.extract | safe}}</p>
       {% if post.read_more %}
       <a href="{{ url_for('page', path=post.path) }}" class="button">Read more</a>
       {% endif %}
   </article>
-</div>
+  <div class="break"></div>
 {% endfor %}
 {% if next %}
 <div id="buttons">

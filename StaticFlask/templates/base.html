@@ -6,6 +6,7 @@
       <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
+      <link rel="stylesheet" href="/static/tufte.css">
       <script type="text/x-mathjax-config">
           MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
@@ -22,28 +23,25 @@
     {% endblock %}
     <style>
     html,body{
-      font-family:Roboto,sans-serif;
+      font-family: Helvetica, Roboto, sans-serif;
       margin: 0px;
       padding: 0px;
       font-size: 16px;
+      background-color: #fffff8;
     }
     h1{
       font-weight: bold;
       font-variant: small-caps;
     }
-    a {
+    /*a {
       text-decoration: none;
       color:inherit;
-    }
-    .sidebar a:hover{
+    }*/
+    #shares a:hover{
       font-size: 1.1em;
-
     }
     a:hover{
-      font-weight:bold;
-    }
-    .post a{
-      text-decoration: underline;
+      /*font-weight:bold;*/
     }
     .post blockquote{
       border-left: 5px solid  #97D6D6;
@@ -53,7 +51,7 @@
       margin-left: 2px;
     }
     blockquote p:nth-child(odd){
-      background-color: #F0F0F0;
+      background-color: #F5F5F5;
     }
 
     .wrap{
@@ -70,46 +68,46 @@
         padding-top: 0%;
         z-index: 100;
       }
+      .sidebar a:link { text-decoration: none;
+         background: -webkit-linear-gradient(#97D6D6, #97D6D6), -webkit-linear-gradient(#97D6D6, #97D6D6), -webkit-linear-gradient(#333, #333);
+         background: linear-gradient(#97D6D6, #97D6D6), linear-gradient(#97D6D6, #97D6D6), linear-gradient(#333, #333);
+         -webkit-background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+         -moz-background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+         background-size: 0.05em 1px, 0.05em 1px, 1px 1px;
+         background-repeat: no-repeat, no-repeat, repeat-x;
+         text-shadow: 0.03em 0 #97D6D6, -0.03em 0 #97D6D6, 0 0.03em #97D6D6, 0 -0.03em #97D6D6, 0.06em 0 #97D6D6, -0.06em 0 #97D6D6, 0.09em 0 #97D6D6, -0.09em 0 #97D6D6, 0.12em 0 #97D6D6, -0.12em 0 #97D6D6, 0.15em 0 #97D6D6, -0.15em 0 #97D6D6;
+         background-position: 0% 93%, 100% 93%, 0% 93%; }      
+
       .main {
         margin-top: 0%;
         padding-top: 0%;
         margin-left: 15%;
         text-align: left;
       }
-      #title{
-        padding-left: 10px;
-        width:99%;
-        border-bottom: 7px solid #DDDDDD;
-        margin-top: 0px;
-        padding-left: 2px;
-        padding-bottom: 0px;
-        padding-top: 0px;
-        position: fixed;
-        background-color:white;
-        float: left;
-        z-index: 100;
-        white-space: pre-line;
-      }
       #content{
         padding-left: 5px;
         z-index: 50;
         float:left;
         overflow: hidden;
-        background-color: white;
-      }
-      .post-wrapper{
-       border-bottom: 5px solid #DDDDDD;
-       width:100%;
       }
       .post{
-        /*padding-bottom: 10px;*/
-        /*margin:5px;*/
-        padding: 5px 25px 20px 5px;
-        background-color: white;
+        margin:5px;
+        width:95%;
+        padding: 5px 10px 20px 5px;
+        background-color: #fffff8;
+      }
+      .post h1{
+        margin-top: 1rem;
+        font-size: 2rem;
       }
       .post img{
         /*max-width: 99%;*/
         width:100%;
+      }
+      .break{
+        display: block;
+        height: 5px;
+        background-color: black;
       }
       .button {
         border-radius: 10%;
@@ -141,17 +139,13 @@
         margin-bottom: 20%;
         text-align: center;
       }
-      .post-title{
-        text-size:2em;
-        text-decoration: underline;
-      }
-      .section{
+      nav a{
+        display: block;
         padding-top: 2.5%;
         padding-bottom: 2.5%;
-        background-color: #75BFBF;
-        font-variant: small-caps;
-        font-weight: bold;
-        /*font-size: 2em;*/
+        width:25%;
+        margin-left: auto;
+        margin-right: auto;
         margin-bottom: 10%;
         text-align: center;
       }
@@ -204,15 +198,16 @@
           <a href="{{config.TWITTER}}" <i class="icon fa fa-twitter-square fa-1x"></i></a>
           <a href="{{config.GITHUB}}" <i class="icon fa fa-github-square fa-1x"></i></a>
         </div>
-        <div id="cv" class="section"><a href="{{url_for('about')}}">About</a></div>
-        <div id="blog" class="section"><a href="{{url_for('archive')}}">Blog</a></div>
+        <nav>
+        <!-- <div  class="section"> -->
+        <a id="cv" href="{{url_for('about')}}">About</a>
+        <!-- </div> -->
+        <!-- <div  class="section"> -->
+        <a id="blog"href="{{url_for('archive')}}">Blog</a>
+        <!-- </div> -->
+        </nav>
       </div>
       <div class="main">
-        {% if page is defined %}
-          <h1 id="title">{{page.title}}</h1>
-        {% else %}
-          <h1 id="title"> {{config.PAGE_TITLE}} </h1>
-        {% endif %}
         <div id="content">
           {% block content %}
           {% endblock %}
