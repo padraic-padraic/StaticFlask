@@ -17,7 +17,7 @@ class Testing():
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
     APP_DIR = path.dirname(path.abspath(__file__))
-    SIDEBAR_TITLE = "Padraic Calpin?"
+    SIDEBAR_TITLE = "Padraic Calpin"
     PAGE_TITLE = 'My blog is a blog'
 
 class Config(Testing):
