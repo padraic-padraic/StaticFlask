@@ -85,7 +85,7 @@
         text-align: left;
       }
       #content{
-        padding-left: 5px;
+        /*padding-left: 5px;*/
         z-index: 50;
         float:left;
         overflow: hidden;
@@ -103,11 +103,6 @@
       .post img{
         /*max-width: 99%;*/
         width:100%;
-      }
-      .break{
-        display: block;
-        height: 5px;
-        background-color: black;
       }
       .button {
         border-radius: 10%;
@@ -139,11 +134,10 @@
         margin-bottom: 20%;
         text-align: center;
       }
-      nav a{
+      nav div{
         display: block;
         padding-top: 2.5%;
         padding-bottom: 2.5%;
-        width:25%;
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 10%;
@@ -199,12 +193,12 @@
           <a href="{{config.GITHUB}}" <i class="icon fa fa-github-square fa-1x"></i></a>
         </div>
         <nav>
-        <!-- <div  class="section"> -->
-        <a id="cv" href="{{url_for('about')}}">About</a>
-        <!-- </div> -->
-        <!-- <div  class="section"> -->
-        <a id="blog"href="{{url_for('archive')}}">Blog</a>
-        <!-- </div> -->
+          <div>
+            <a id="cv" href="{{url_for('about')}}">About</a><br>
+          </div>
+          <div>
+            <a id="blog"href="{{url_for('archive')}}">Blog</a>
+          </div>
         </nav>
       </div>
       <div class="main">
