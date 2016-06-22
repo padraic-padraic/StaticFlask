@@ -80,6 +80,20 @@ def about():
     _page = pages.get_or_404('about')
     return render_template('page.html', page=_page)
 
+@app.route('/notes/')
+def notes():
+    _pages = [p for p in pages if p.meta.get('category', None) == 'Notes']
+    _pages = [p for p in _pages if p.meta.get('topic', None) is not None]
+    categorized = {}
+    for p in _pages:
+        if not p.meta['topic'] in categorized:
+            categorized[p.meta['topic']] = []
+        categorized[p.meta['topic']].append(p)
+    for topic in categorized.keys():
+        categorized[topic] = sorted(categorized[topic],
+                                    key=lambda p: p.meta['order'])
+    return render_template('note_index.html', topics=categorized)
+
 @app.route('/pygments.css')
 def pygments_css():
     return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}

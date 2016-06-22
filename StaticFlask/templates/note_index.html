@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %} padraic.xyz - Notes {% endblock %}
+{% block content %}
+<h1>Notes</h1>
+{% for topic, pages in topics.items() %}
+<p class="subtitle">{{topic}}</p>
+    <ol>
+    {% for p in pages %}
+        <li><a href="{{ url_for('page', path=p.path) }}">{{p.title}}</a></li>
+    {% endfor %}
+    </ol>
+<hr>
+{% endfor %}
+{% endblock %}
