@@ -8,11 +8,13 @@
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
       <link rel="stylesheet" href="/static/tufte.css">
       <script type="text/x-mathjax-config">
+        MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
           MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
             "HTML-CSS": { linebreaks: { automatic: true },
                           scale:60},
-            SVG: { linebreaks: { automatic: true } }
+            SVG: { linebreaks: { automatic: true } },
+            extensions:["[Contrib]/physics/physics.js"]
         });
       </script>
       <script async type="text/javascript" src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML.js'></script>
@@ -209,17 +211,14 @@
     </div>
     </div>
     <script type="text/javascript">
-      off = document.getElementById('title').offsetHeight / 1.5;
-      document.getElementById('content').style.marginTop = off.toString() + 'px';
-
        page = window.location.pathname;
        if (page == '/about' || page == '/about/'){
         current = document.getElementById('cv');
-        current.style.font-weight = "bold";
+        current.style.fontWeight = "bold";
        }
        else {
         current = document.getElementById('blog');
-        current.style.font-weight = "bold";
+        current.style.fontWeight = "bold";
        }
     </script>
   </body>
