@@ -22,8 +22,8 @@ class Testing():
 
 class Config(Testing):
     DEBUG = False
-    FREEZER_BASE_URL = 'http://calpin.me'
-    FLATPAGES_ROOT = './pages'
+    FREEZER_BASE_URL = 'http://padraic.xyz'
+    FLATPAGES_ROOT = '/home/pi/BlogPages/'
     FREEZER_DESTINATION = '/var/www/Static'
 
 pages = FlatPages()
