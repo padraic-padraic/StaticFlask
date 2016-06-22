@@ -52,7 +52,8 @@ def page():
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
-    _pages = sorted((p for p in pages if 'published' in p.meta),
+    _pages = [p for p in pages if p.meta.get('category', None) == 'Blog']
+    _pages = sorted((p for p in _pages if 'published' in p.meta),
                     reverse=True, key=lambda p: p.meta['published'])
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
