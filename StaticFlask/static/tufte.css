@@ -39,7 +39,7 @@
 html { font-size: 15px; }
 
 body { 
-       width: 95%;
+       width: 100%;
        margin-left: auto;
        margin-right: auto;
        padding-left: 12.5%;
@@ -204,7 +204,7 @@ img { max-width: 100%; }
 .sidenote:before { content: counter(sidenote-counter) " ";
                    top: -0.5rem; }
 
-p, footer, table, div.table-wrapper-small, div.supertable-wrapper > p, div.booktabs-wrapper { width: 85%; }
+p, footer, table, div.table-wrapper-small, div.supertable-wrapper > p, div.booktabs-wrapper { width: 65%; }
 
 div.fullwidth, table.fullwidth { width: 100%; }
 
