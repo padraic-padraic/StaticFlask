@@ -10,11 +10,13 @@
       <script type="text/x-mathjax-config">
         MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
           MathJax.Hub.Config({
-            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']],
+                      processEscapes:true},
             "HTML-CSS": { linebreaks: { automatic: true },
                           scale:60},
             SVG: { linebreaks: { automatic: true } },
-            extensions:["[Contrib]/physics/physics.js"]
+            extensions:["[Contrib]/physics/physics.js"],
+            TeX: { extensions: ["AMSmath.js", "AMSsymbols.js"]}
         });
       </script>
       <script async type="text/javascript" src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML.js'></script>
