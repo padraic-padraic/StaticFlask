@@ -11,7 +11,6 @@ class Testing():
                                      'headerid']
     FREEZER_DESTINATION = '../../Files'
     FREEZER_BASE_URL = 'http://localhost'
-    FREEZER_REMOVE_EXTRA_FILES = True
     FLATPAGES_ROOT = '/Users/padraic/Documents/BlogPages'
     FLATPAGES_EXTENSION = '.md'
     TWITTER = 'https://twitter.com/padraic_padraic'
@@ -25,6 +24,7 @@ class Config(Testing):
     FREEZER_BASE_URL = 'http://padraic.xyz'
     FLATPAGES_ROOT = '/home/pi/BlogPages/'
     FREEZER_DESTINATION = '/var/www/Static'
+    FREEZER_REMOVE_EXTRA_FILES = False
 
 pages = FlatPages()
 app = Flask(__name__)
