@@ -1,6 +1,6 @@
 import markdown
 
-from flask import Flask, render_template, render_template_string
+from flask import abort, Flask, render_template, render_template_string
 from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
 from os import listdir, path
@@ -20,6 +20,8 @@ class Testing():
     APP_DIR = path.dirname(path.abspath(__file__))
     SIDEBAR_TITLE = "Padraic Calpin"
     PAGE_TITLE = 'My blog is a blog'
+    CATEGORIES = ['notes', 'blog']
+    # RESERVED_NAMES = CATEGORIES + ['about']
 
 class Config(Testing):
     DEBUG = False
@@ -29,7 +31,8 @@ class Config(Testing):
 
 pages = FlatPages()
 app = Flask(__name__)
-app.config.from_object(Config())
+conf = Config()
+app.config.from_object(conf)
 pages.init_app(app)
 freezer = Freezer(app)
 
@@ -50,6 +53,47 @@ def page():
             yield{'path':filename.split('.')[0]}
 
 
+def get_from_partial_path(partial_path):
+    f_path = path.join(Testing().FLATPAGES_ROOT, partial_path)
+    category = [_s for _s in partial_path.split('/')][-1].capitalize()
+    category_data = {'cateogry':category,
+                     'sub_categories': {},
+                     'posts': []}
+    listings = map(lambda x: (x, path.join(Testing().FLATPAGES_ROOT, 
+                                            partial_path, x)), 
+                   filter(lambda x: not x.startswith('.'),
+                          listdir(f_path))
+                   )
+    for _short, _full in listings:
+        if path.isdir(_full):
+            category_data['sub_categories'][_short] = []
+            for _f in listdir(_full):
+                if  _f.split('.')[-1]=='md':
+                    p = pages.get(path.join(partial_path, _short,
+                                            _f.split('.'))[0])
+                    if 'published' in p.meta:
+                        category_data['sub_categories'][_short].append(p)
+        else:
+            category_data['posts'].append(path.join(partial_path, _short))
+    for category in category_data['sub_categories']:
+        if 'order' in category_data['sub_categories'][cateogry][0].meta:
+            category_data['sub_categories'][category] = sorted(
+                category_data['subcategories'][category],
+                key=lambda x: x.meta['order']
+                )
+        else:
+            category_data['sub_categories'][category] = sorted(
+                category_data['subcategories'][category],
+                key=lambda x: x.meta['published'], reverse=True
+                )
+    if 'order' in category_data['posts']:
+        category_data['posts'] = sorted(category_data['posts'],
+                                        key=lambda x: x.meta['order'])
+    else:
+        category_data['posts'] = sorted(category_data['posts'], reverse=True,
+                                        key=lambda x: x.meta['published'])
+    return category_data
+
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
@@ -68,13 +112,20 @@ def archive(_page=1):
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits[:3]))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', posts=posts, next=_next, nextpage=_page+1,
-                           prevpage=_page-1)
+    return render_template('index.html', posts=posts, next=_next, 
+                            nextpage=_page+1, prevpage=_page-1)
 
-@app.route('/<path:path>/')
-def page(path):
-    _page = pages.get_or_404(path)
-    return render_template('page.html', page=_page)
+@app.route('/<path:_path>/')
+def page(_path):
+    if _page is not None:
+        return render_template('page.html', page=_page)
+    f_path = path.join(conf.FLATPAGES_ROOT, _path)
+    if not path.isdir(f_path):
+        abort(404)
+    _data = get_from_partial_path(_path)
+    return render_template('category_index.html', data=_data)
+    #TODO: Implement partial path, think about how to handle 'topics'; is the notes category an exception?
+    
 
 @app.route('/about/')
 def about():
