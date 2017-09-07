@@ -1,9 +1,11 @@
-import markdown
+# import markdown
+import os
+import sys.platform
 
+from .resolve_paths import skip_reserved_names
 from flask import abort, Flask, render_template, render_template_string
 from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
-from os import listdir, path
 
 class Testing():
     DEBUG = True
@@ -16,12 +18,12 @@ class Testing():
     FLATPAGES_EXTENSION = '.md'
     TWITTER = 'https://twitter.com/padraic_padraic'
     GITHUB = 'https://github.com/padraic-padraic'
-    MASTODON = 'https://mastodon.social/@padraic_padraic'
-    APP_DIR = path.dirname(path.abspath(__file__))
+    # MASTODON = 'https://mastodon.social/@padraic_padraic'
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
     SIDEBAR_TITLE = "Padraic Calpin"
     PAGE_TITLE = 'My blog is a blog'
-    CATEGORIES = ['notes', 'blog']
-    # RESERVED_NAMES = CATEGORIES + ['about']
+    # CATEGORIES = ['notes', 'blog']
+    RESERVED_NAMES = ['about', 'static', 'images']
 
 class Config(Testing):
     DEBUG = False
@@ -29,12 +31,16 @@ class Config(Testing):
     FLATPAGES_ROOT = '/home/pi/BlogPages/'
     FREEZER_DESTINATION = '/var/www/Static'
 
-pages = FlatPages()
 app = Flask(__name__)
-conf = Config()
+pages = FlatPages()
+conf = Testing()
 app.config.from_object(conf)
 pages.init_app(app)
 freezer = Freezer(app)
+
+# def init_app(app, config=Config()):
+#     app.config.from_object(config)
+#     pages.init_app(app)
 
 @freezer.register_generator
 def archive():
@@ -48,58 +54,61 @@ def archive():
 
 @freezer.register_generator
 def page():
-    for filename in listdir(app.config['APP_DIR']+'/pages'):
+    for filename in os.listdir(app.config['APP_DIR']+'/pages'):
         if filename != 'about' or filename.split('.')[1] != 'md':
             yield{'path':filename.split('.')[0]}
 
-
 def get_from_partial_path(partial_path):
-    f_path = path.join(Testing().FLATPAGES_ROOT, partial_path)
-    category = [_s for _s in partial_path.split('/')][-1].capitalize()
-    category_data = {'cateogry':category,
-                     'sub_categories': {},
-                     'posts': []}
-    listings = map(lambda x: (x, path.join(Testing().FLATPAGES_ROOT, 
-                                            partial_path, x)), 
-                   filter(lambda x: not x.startswith('.'),
-                          listdir(f_path))
-                   )
-    for _short, _full in listings:
-        if path.isdir(_full):
-            category_data['sub_categories'][_short] = []
-            for _f in listdir(_full):
-                if  _f.split('.')[-1]=='md':
-                    p = pages.get(path.join(partial_path, _short,
-                                            _f.split('.'))[0])
-                    if 'published' in p.meta:
-                        category_data['sub_categories'][_short].append(p)
-        else:
-            category_data['posts'].append(path.join(partial_path, _short))
-    for category in category_data['sub_categories']:
-        if 'order' in category_data['sub_categories'][cateogry][0].meta:
-            category_data['sub_categories'][category] = sorted(
-                category_data['subcategories'][category],
-                key=lambda x: x.meta['order']
-                )
-        else:
-            category_data['sub_categories'][category] = sorted(
-                category_data['subcategories'][category],
-                key=lambda x: x.meta['published'], reverse=True
-                )
-    if 'order' in category_data['posts']:
-        category_data['posts'] = sorted(category_data['posts'],
-                                        key=lambda x: x.meta['order'])
-    else:
-        category_data['posts'] = sorted(category_data['posts'], reverse=True,
-                                        key=lambda x: x.meta['published'])
+    #TODO: Fix the fact that max depth is currently 1, using os.walk and pruning
+    #Maybe break this up in to functions
+    #Remove dependence on config class and use app instead?
+    # Could this be an extension to flatpages?
+    # reserved = app.config['RESERVED_NAMES']
+    # root = os.path.join(app.config['FLATPAGES_ROOT'], partial_path)
+    reserved = Testing().RESERVED_NAMES
+    root = os.path.join(Testing().FLATPAGES_ROOT, partial_path)
+    category_data = {'category' = partial_path}
+    for path, dirs, files in os.walk(root):
+        dir_data = {}
+        dirs, files = skip_reserved_names(dirs, files, reserved)
+        stem = os.path.relpath(path, root)
+        dir_data['files'] = []
+        for f in files:
+            p = pages.get(os.path.join(partial_path, stem, 
+                                       os.path.splitext(f)[0]))
+            if p is not None:
+                dir_data['files'].append(p)
+        if stem == '.':
+            for d in dirs:
+                dir_data['categories'].append(d)
+        category_data[stem] = dir_data
     return category_data
+    
+@app.template_filter('split_path')
+def split_path(path):
+    if sys.platform.startswith('win'):
+        sep = '\\'
+    else:
+        sep = '/'
+    return path.split(sep)
+
+@app.template_filter('echo_split_path')
+def echo_path(_split_path):
+    return(' > '.join(_split_path))
 
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
-    _pages = [p for p in pages if p.meta.get('category', None) == 'Blog']
-    _pages = sorted((p for p in _pages if 'published' in p.meta),
-                    reverse=True, key=lambda p: p.meta['published'])
+    post_data = get_from_partial_path('/')
+    blog_posts = []
+    root_categories = post_data['.']['categories']
+    blog_pages = []
+    for key in post_data:
+        if key=='.' or key == 'category':
+            continue
+        if 'blog' in key:
+            [blog_pages.append(p) for p in post_data['files']]
+    _pages = sorted(blog_pages, key=lambda x: x.meta['published'], reverse=True)
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
         bits = post.body.split('\n')
@@ -112,39 +121,27 @@ def archive(_page=1):
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits[:3]))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', posts=posts, next=_next, 
+    return render_template('index.html', 
+                            root_categories = root_categories, 
+                            posts=posts, next=_next, 
                             nextpage=_page+1, prevpage=_page-1)
 
-@app.route('/<path:_path>/')
-def page(_path):
+@app.route('/<path:path>/')
+def page(path):
+    _page = pages.get(path)
     if _page is not None:
         return render_template('page.html', page=_page)
-    f_path = path.join(conf.FLATPAGES_ROOT, _path)
-    if not path.isdir(f_path):
+    f_path = os.path.join(conf.FLATPAGES_ROOT, path)
+    if not os.path.isdir(f_path):
         abort(404)
-    _data = get_from_partial_path(_path)
+    _data = get_from_partial_path(path)
     return render_template('category_index.html', data=_data)
-    #TODO: Implement partial path, think about how to handle 'topics'; is the notes category an exception?
-    
+    #TODO: Implement the category index template.    
 
-@app.route('/about/')
-def about():
-    _page = pages.get_or_404('about')
-    return render_template('page.html', page=_page)
-
-@app.route('/notes/')
-def notes():
-    _pages = [p for p in pages if p.meta.get('category', None) == 'Notes']
-    _pages = [p for p in _pages if p.meta.get('topic', None) is not None]
-    categorized = {}
-    for p in _pages:
-        if not p.meta['topic'] in categorized:
-            categorized[p.meta['topic']] = []
-        categorized[p.meta['topic']].append(p)
-    for topic in categorized.keys():
-        categorized[topic] = sorted(categorized[topic],
-                                    key=lambda p: p.meta['order'])
-    return render_template('note_index.html', topics=categorized)
+# @app.route('/about/')
+# def about():
+#     _page = pages.get_or_404('about')
+#     return render_template('page.html', page=_page)
 
 @app.route('/pygments.css')
 def pygments_css():
