@@ -54,9 +54,17 @@ def archive():
 
 @freezer.register_generator
 def page():
-    for filename in os.listdir(app.config['APP_DIR']+'/pages'):
-        if filename != 'about' or filename.split('.')[1] != 'md':
-            yield{'path':filename.split('.')[0]}
+    for path, dirs, files in os.walk(app.config['FLATPAGES_ROOT']):
+        dirs, files = skip_reserved_names(dirs, files, reserved)
+        stem = os.path.relpath(app.config['FLATPAGES_ROOT'], path)
+        if '\\' in stem:
+            stem = stem.replace('\\', '/')
+        for f in files:
+            if '\\' in path:
+                path = path.replace('\\', '/')
+            yield({'path':'/'.join(path, f).strip('/')})
+        yield{'path':path.strip('/')}
+
 
 def delete_occurances(_list, search_items):
     indices = []
@@ -99,7 +107,6 @@ def get_from_partial_path(partial_path):
                 p_path = '/'.join([partial_path, 
                                    os.path.splitext(f)[0]]).strip('/')
             p = pages.get(p_path)
-            app.logger.debug(p_path)
             if p is not None:
                 dir_data['files'].append(p)
         if stem == '.':
@@ -107,7 +114,6 @@ def get_from_partial_path(partial_path):
             for d in dirs:
                 dir_data['categories'].append(d)
         category_data[stem] = dir_data
-    app.logger.debug(category_data)
     return category_data
 
 @app.template_filter('split_path')
@@ -125,20 +131,15 @@ def echo_path(_split_path):
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
-    app.logger.debug('start index')
     post_data = get_from_partial_path('/')
-    app.logger.debug('Got from partial')
     blog_posts = []
     root_categories = post_data['.']['categories']
     blog_pages = []
-    app.logger.debug('Filter posts')
     for key in post_data:
         if key=='.' or key == 'category':
             continue
         if 'blog' in key:
-            app.logger.debug('Found some blogposts')
             [blog_pages.append(p) for p in post_data[key]['files']]
-    app.logger.debug(blog_pages)
     blog_pages = [p for p in blog_pages if p.meta.get('published', None) is not None]
     _pages = sorted(blog_pages, key=lambda x: x.meta['published'], reverse=True)
     posts = _pages[(_page-1)*10:_page*10]
@@ -163,13 +164,13 @@ def page(path):
     root_categories = get_from_partial_path('/')['.']['categories']
     _page = pages.get(path)
     if _page is not None:
-        return render_template('page.html', page=_page)
+        return render_template('page.html', page=_page, 
+                               root_categories=root_categories)
     if sys.platform.startswith('win'):
         f_path = path.replace('/', '\\')
     else:
         f_path = path
     f_path = os.path.join(app.config['FLATPAGES_ROOT'], f_path)
-    app.logger.debug(f_path)
     if not os.path.isdir(f_path):
         abort(404)
     _data = get_from_partial_path(path)
