@@ -1,4 +1,3 @@
-{% autoescape true %}
 <!DOCTYPE HTML>
 <html>
   <head>
@@ -9,7 +8,7 @@
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
       <link rel="stylesheet" href="/static/tufte.css">
       <script type="text/x-mathjax-config">
-        MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
+        MathJax.Ajax.config.path["Contrib"] = "https://cdnjs.mathjax.org/mathjax/contrib";
           MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']],
                       processEscapes:true},
@@ -20,7 +19,7 @@
             TeX: { extensions: ["AMSmath.js", "AMSsymbols.js"]}
         });
       </script>
-      <script async type="text/javascript" src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML.js'></script>
+      <script async type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML.js'></script>
       {% block link %}
       {% endblock %}
       {% block scripts %}
@@ -215,15 +214,16 @@
         </div>
         <nav>
           <div class="cat_link">
-            <a id="cv_link" href="{{url_for('path', '/about/')}}">About</a><br>
+            <a id="cv_link" href={{url_for('page', path='about')}}>About</a><br>
           </div>
           <div class="cat_link">
             <a id="blog" href="{{url_for('archive')}}">Blog</a>
           </div>
           {% for cat in root_categories if not cat == 'blog'%}
           <div class="cat_link">
-            <a id="{{cat}}" href="{{ url_for('path', cat) }}">{{cat}}</a>
+            <a id="{{cat}}" href={{ url_for('page', path=cat) }}>{{cat | capitalize}}</a>
           </div>
+          {% endfor %}
           <div id="header_nav">
           </div>
         </nav>
@@ -242,16 +242,16 @@
         current.style.fontWeight = "bold";
        }
        else {
-        root_cat = pathname.split('/')[1];
+        root_cat = page.split('/')[1];
         if (root_cat == ""){
           current = document.getElementById('blog');
-        } else 
+        } else {
           current = document.getElementById(root_cat);
           head_nav = document.getElementById('header_nav');
           headers = document.getElementsByTagName('h2');
-          for (i=0; i< headers.length; i++){
-            //TODO: Insert the nav points
-          }
+          // for (i=0; i< headers.length; i++){
+          //   //TODO: Insert the nav points
+          // }
         }
         current.style.fontWeight = "bold";
        }

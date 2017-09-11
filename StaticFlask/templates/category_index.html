@@ -1,31 +1,38 @@
 {% extends 'base.html' %}
-{% block title %} padraic.xyz - {{data.category | last}} {% endblock %}
+{% block title %} padraic.xyz - {{data.category | split_path | last}} {% endblock %}
 {% block content %}
 <h1>
 {{ data.category | split_path | last }}
 </h1>
 <!-- TODO: Category description? -->
+{% if data['.']['categories'] %}
 <h2>Sub-Categories</h2>
 <p>
-{% for stem, posts in data %}
-    {% if stem != '.'  and stem != 'category' %}
-     <a stye="font-weight:bold;" href="{{url_for('archive', path=stem)}}">{% stem | split_path| echo_split_path }}</a>, 
-    {% endif %}
+{% for key, value in data.items() %}
+    {% if key != '.'  and key != 'category' %}
+      {% if value['files'] %}
+        {% set _path = data['category']+'/'+key %}
+         <a stye="font-weight:bold;" href={{url_for('page', path=_path)}}>{{ key | split_path | echo_split_path | e }}</a>, 
+        {% endif %}
+      {% endif %}
 {% endfor %}
 </p>
+{% endif %}
 <hr>
 <h2> Posts </h2>
     <ol>
-    {% for p in data['.'] %}
+    {% for p in data['.']['files'] %}
         <li><a href="{{ url_for('page', path=p.path) }}">{{p.title}}</a></li>
     {% endfor %}
     </ol>
-{% for stem, posts in data %}
+{% for stem, value in data.items() %}
     {% if stem != '.' and stem != 'category' %}
-        <h3>{{stem|split_path|echo_split_path}}</h3>
-        {% for p in posts %}
+      {% if value['files'] %}
+        <h3>{{stem|split_path|echo_split_path | e}}</h3>
+        {% for p in value['files'] %}
                 <li><a href="{{ url_for('page', path=p.path) }}">{{p.title}}</a></li>
         {% endfor %}
+      {% endif %}
     {% endif %}
 {% endfor %}
 {% endblock %}

@@ -1,8 +1,7 @@
 # import markdown
 import os
-import sys.platform
+import sys
 
-from .resolve_paths import skip_reserved_names
 from flask import abort, Flask, render_template, render_template_string
 from flask_flatpages import FlatPages, pygmented_markdown, pygments_style_defs
 from flask_frozen import Freezer
@@ -24,6 +23,7 @@ class Testing():
     PAGE_TITLE = 'My blog is a blog'
     # CATEGORIES = ['notes', 'blog']
     RESERVED_NAMES = ['about', 'static', 'images']
+    IGNORED_NAMES = ['.git', '.DS_store']
 
 class Config(Testing):
     DEBUG = False
@@ -58,32 +58,58 @@ def page():
         if filename != 'about' or filename.split('.')[1] != 'md':
             yield{'path':filename.split('.')[0]}
 
+def delete_occurances(_list, search_items):
+    indices = []
+    for i, d in enumerate(_list):
+        if d in search_items:
+            indices.append(i)
+    indices = sorted(indices, reverse=True)
+    for i in indices:
+        _list.pop(i)
+    return _list
+
+
+def skip_reserved_names(dirs, files, reserved_names):
+    delete_occurances(dirs, reserved_names)
+    delete_occurances(files, reserved_names)
+    return dirs, files
+
 def get_from_partial_path(partial_path):
-    #TODO: Fix the fact that max depth is currently 1, using os.walk and pruning
-    #Maybe break this up in to functions
-    #Remove dependence on config class and use app instead?
-    # Could this be an extension to flatpages?
-    # reserved = app.config['RESERVED_NAMES']
-    # root = os.path.join(app.config['FLATPAGES_ROOT'], partial_path)
-    reserved = Testing().RESERVED_NAMES
-    root = os.path.join(Testing().FLATPAGES_ROOT, partial_path)
-    category_data = {'category' = partial_path}
+    #TODO: Fix the failure if we're in the bottom of the stack
+    reserved = app.config['RESERVED_NAMES'] + app.config['IGNORED_NAMES']
+    if partial_path != '/':
+        root = os.path.join(app.config['FLATPAGES_ROOT'], partial_path)
+    else:
+        root = app.config['FLATPAGES_ROOT']
+    # reserved = Testing().RESERVED_NAMES
+    # root = os.path.join(Testing().FLATPAGES_ROOT, partial_path)
+    category_data = {'category':partial_path}
     for path, dirs, files in os.walk(root):
         dir_data = {}
         dirs, files = skip_reserved_names(dirs, files, reserved)
         stem = os.path.relpath(path, root)
+        if '\\' in stem:
+            stem = '/'.join(split_path(stem))
         dir_data['files'] = []
         for f in files:
-            p = pages.get(os.path.join(partial_path, stem, 
-                                       os.path.splitext(f)[0]))
+            if stem != '.':
+                p_path = '/'.join([partial_path, stem, 
+                                   os.path.splitext(f)[0]]).strip('/')
+            else:
+                p_path = '/'.join([partial_path, 
+                                   os.path.splitext(f)[0]]).strip('/')
+            p = pages.get(p_path)
+            app.logger.debug(p_path)
             if p is not None:
                 dir_data['files'].append(p)
         if stem == '.':
+            dir_data['categories'] = []
             for d in dirs:
                 dir_data['categories'].append(d)
         category_data[stem] = dir_data
+    app.logger.debug(category_data)
     return category_data
-    
+
 @app.template_filter('split_path')
 def split_path(path):
     if sys.platform.startswith('win'):
@@ -99,15 +125,21 @@ def echo_path(_split_path):
 @app.route('/')
 @app.route('/<int:_page>/')
 def archive(_page=1):
+    app.logger.debug('start index')
     post_data = get_from_partial_path('/')
+    app.logger.debug('Got from partial')
     blog_posts = []
     root_categories = post_data['.']['categories']
     blog_pages = []
+    app.logger.debug('Filter posts')
     for key in post_data:
         if key=='.' or key == 'category':
             continue
         if 'blog' in key:
-            [blog_pages.append(p) for p in post_data['files']]
+            app.logger.debug('Found some blogposts')
+            [blog_pages.append(p) for p in post_data[key]['files']]
+    app.logger.debug(blog_pages)
+    blog_pages = [p for p in blog_pages if p.meta.get('published', None) is not None]
     _pages = sorted(blog_pages, key=lambda x: x.meta['published'], reverse=True)
     posts = _pages[(_page-1)*10:_page*10]
     for post in posts:
@@ -121,22 +153,29 @@ def archive(_page=1):
                 bits[index] = "\n"
         post.meta['extract'] = pygmented_markdown("\n".join(bits[:3]))
     _next = len(_pages[_page*10:(_page+1)*10])>0
-    return render_template('index.html', 
-                            root_categories = root_categories, 
-                            posts=posts, next=_next, 
+    return render_template('index.html',
+                            root_categories = root_categories,
+                            posts=posts, next=_next,
                             nextpage=_page+1, prevpage=_page-1)
 
 @app.route('/<path:path>/')
 def page(path):
+    root_categories = get_from_partial_path('/')['.']['categories']
     _page = pages.get(path)
     if _page is not None:
         return render_template('page.html', page=_page)
-    f_path = os.path.join(conf.FLATPAGES_ROOT, path)
+    if sys.platform.startswith('win'):
+        f_path = path.replace('/', '\\')
+    else:
+        f_path = path
+    f_path = os.path.join(app.config['FLATPAGES_ROOT'], f_path)
+    app.logger.debug(f_path)
     if not os.path.isdir(f_path):
         abort(404)
     _data = get_from_partial_path(path)
-    return render_template('category_index.html', data=_data)
-    #TODO: Implement the category index template.    
+    return render_template('category_index.html', data=_data,
+        root_categories=root_categories)
+    #TODO: Implement the category index template.
 
 # @app.route('/about/')
 # def about():
