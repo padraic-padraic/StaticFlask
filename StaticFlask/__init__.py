@@ -23,7 +23,7 @@ class Testing():
     PAGE_TITLE = 'My blog is a blog'
     # CATEGORIES = ['notes', 'blog']
     RESERVED_NAMES = ['about', 'static', 'images']
-    IGNORED_NAMES = ['.git', '.DS_store']
+    IGNORED_NAMES = ['.git', '.gitignore', '.DS_Store']
 
 class Config(Testing):
     DEBUG = False
@@ -44,7 +44,7 @@ freezer = Freezer(app)
 
 @freezer.register_generator
 def archive():
-    posts = [p for p in pages if p.path != 'about']
+    posts = [p for p in pages if 'blog' in p.path]
     _pages= int(len(posts)/10)
     if _pages == 0:
         yield {'_page': 1}
@@ -54,16 +54,16 @@ def archive():
 
 @freezer.register_generator
 def page():
+    reserved = app.config['RESERVED_NAMES'] + app.config['IGNORED_NAMES']
     for path, dirs, files in os.walk(app.config['FLATPAGES_ROOT']):
         dirs, files = skip_reserved_names(dirs, files, reserved)
-        stem = os.path.relpath(app.config['FLATPAGES_ROOT'], path)
+        stem = os.path.relpath(path, app.config['FLATPAGES_ROOT'])
         if '\\' in stem:
             stem = stem.replace('\\', '/')
-        for f in files:
-            if '\\' in path:
-                path = path.replace('\\', '/')
-            yield({'path':'/'.join(path, f).strip('/')})
-        yield{'path':path.strip('/')}
+        if stem !='.':
+            yield{'path':stem.strip('/')}
+    for p in pages:
+        yield{'path':p.path}
 
 
 def delete_occurances(_list, search_items):
