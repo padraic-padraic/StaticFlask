@@ -109,6 +109,9 @@ def get_from_partial_path(partial_path):
             p = pages.get(p_path)
             if p is not None:
                 dir_data['files'].append(p)
+        if all([p.meta.get('order', False) for p in dir_data['files']]):
+            dir_data['files'] = sorted(dir_data['files'], 
+                                       key=lambda x: x.meta['order'])
         if stem == '.':
             dir_data['categories'] = []
             for d in dirs:
