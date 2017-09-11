@@ -8,14 +8,13 @@
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
       <link rel="stylesheet" href="/static/tufte.css">
       <script type="text/x-mathjax-config">
-        MathJax.Ajax.config.path["Contrib"] = "https://cdnjs.mathjax.org/mathjax/contrib";
           MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']],
                       processEscapes:true},
             "HTML-CSS": { linebreaks: { automatic: true },
                           scale:60},
             SVG: { linebreaks: { automatic: true } },
-            extensions:["[Contrib]/physics/physics.js"],
+            extensions:["/static/scripts/physics.js"],
             TeX: { extensions: ["AMSmath.js", "AMSsymbols.js"]}
         });
       </script>
