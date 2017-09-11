@@ -8,18 +8,17 @@
       <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
       <link rel="stylesheet" href="/static/tufte.css">
       <script type="text/x-mathjax-config">
-        MathJax.Ajax.config.path["Contrib"] = "https://cdn.mathjax.org/mathjax/contrib";
           MathJax.Hub.Config({
             tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']],
                       processEscapes:true},
             "HTML-CSS": { linebreaks: { automatic: true },
                           scale:60},
             SVG: { linebreaks: { automatic: true } },
-            extensions:["[Contrib]/physics/physics.js"],
+            extensions:["/static/scripts/physics.js"],
             TeX: { extensions: ["AMSmath.js", "AMSsymbols.js"]}
         });
       </script>
-      <script async type="text/javascript" src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML.js'></script>
+      <script async type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML.js'></script>
       {% block link %}
       {% endblock %}
       {% block scripts %}
@@ -149,6 +148,11 @@
         margin-bottom: 10%;
         text-align: center;
       }
+
+      #header_nav{
+        display: none;
+      }
+
       .buttons{
         padding-top: 10px;
         height:10%;
@@ -205,14 +209,21 @@
         <div id="shares">
           <a href="{{config.TWITTER}}"> <i class="icon fa fa-twitter-square fa-1x"></i></a>
           <a href="{{config.GITHUB}}"> <i class="icon fa fa-github-square fa-1x"></i></a>
-          <a href="{{config.MASTODON}}"><img class="icon fa fa-1x" style="width:14px;height:14px;" src="https://mastodon.social/mask-icon.svg"></a>
+          <!-- <a href="{{config.MASTODON}}"><img class="icon fa fa-1x" style="width:14px;height:14px;" src="https://mastodon.social/mask-icon.svg"></a> -->
         </div>
         <nav>
-          <div>
-            <a id="cv" href="{{url_for('about')}}">About</a><br>
+          <div class="cat_link">
+            <a id="cv_link" href={{url_for('page', path='about')}}>About</a><br>
           </div>
-          <div>
-            <a id="blog"href="{{url_for('archive')}}">Blog</a>
+          <div class="cat_link">
+            <a id="blog" href="{{url_for('archive')}}">Blog</a>
+          </div>
+          {% for cat in root_categories if not cat == 'blog'%}
+          <div class="cat_link">
+            <a id="{{cat}}" href={{ url_for('page', path=cat) }}>{{cat | capitalize}}</a>
+          </div>
+          {% endfor %}
+          <div id="header_nav">
           </div>
         </nav>
       </div>
@@ -230,9 +241,20 @@
         current.style.fontWeight = "bold";
        }
        else {
-        current = document.getElementById('blog');
+        root_cat = page.split('/')[1];
+        if (root_cat == ""){
+          current = document.getElementById('blog');
+        } else {
+          current = document.getElementById(root_cat);
+          head_nav = document.getElementById('header_nav');
+          headers = document.getElementsByTagName('h2');
+          // for (i=0; i< headers.length; i++){
+          //   //TODO: Insert the nav points
+          // }
+        }
         current.style.fontWeight = "bold";
        }
+
     </script>
   </body>
 </html>
