@@ -127,6 +127,13 @@ def split_path(path):
         sep = '/'
     return path.split(sep)
 
+@app.template_filter('uscore_to_space')
+def us_to_space(_object):
+    if type(_object)==list:
+        return [el.replace('_', ' ') for el in _object]
+    else:
+        return _object.replace('_', ' ')
+
 @app.template_filter('echo_split_path')
 def echo_path(_split_path):
     return(' > '.join(_split_path))

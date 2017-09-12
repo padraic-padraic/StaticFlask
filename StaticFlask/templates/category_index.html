@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
-{% block title %} padraic.xyz - {{data.category | split_path | last}} {% endblock %}
+{% set formatted = data.category | split_path | uscore_to_space %}
+{% block title %} padraic.xyz - {{formatted| last}} {% endblock %}
 {% block content %}
 <h1>
-{{ data.category | split_path | last }}
+{{ formatted | last }}
 </h1>
+<p class="subtitle">{{ formatted | echo_split_path }}
 <!-- TODO: Category description? -->
 {% if data['.']['categories'] %}
 <h2>Sub-Categories</h2>
@@ -12,7 +14,7 @@
     {% if key != '.'  and key != 'category' %}
       {% if value['files'] %}
         {% set _path = data['category']+'/'+key %}
-         <a stye="font-weight:bold;" href={{url_for('page', path=_path)}}>{{ key | split_path | echo_split_path | e }}</a>, 
+         <a stye="font-weight:bold;" href={{url_for('page', path=_path)}}>{{ key | uscore_to_space | split_path | echo_split_path | e }}</a>, 
         {% endif %}
       {% endif %}
 {% endfor %}
@@ -28,7 +30,7 @@
 {% for stem, value in data.items() %}
     {% if stem != '.' and stem != 'category' %}
       {% if value['files'] %}
-        <h3>{{stem|split_path|echo_split_path | e}}</h3>
+        <h3>{{stem|split_path|uscore_to_space |echo_split_path | e}}</h3>
         {% for p in value['files'] %}
                 <li><a href="{{ url_for('page', path=p.path) }}">{{p.title}}</a></li>
         {% endfor %}
