@@ -1,5 +1,4 @@
 title: 'QInfo'
-published: '2015-10-10'
 
 ## Evolution
 Evolution is described by quantum channels. A quantum channel is a **Linear, Completely Positive, Trace Preserving Map**. Each of those terms has a very precise meaning.

@@ -33,7 +33,7 @@ class Config(Testing):
 
 app = Flask(__name__)
 pages = FlatPages()
-conf = Testing()
+conf = Config()
 app.config.from_object(conf)
 pages.init_app(app)
 freezer = Freezer(app)
@@ -44,7 +44,7 @@ freezer = Freezer(app)
 
 @freezer.register_generator
 def archive():
-    posts = [p for p in pages if 'blog' in p.path]
+    posts = [p for p in pages if 'Blog' in p.path]
     _pages= int(len(posts)/10)
     if _pages == 0:
         yield {'_page': 1}
@@ -148,7 +148,7 @@ def archive(_page=1):
     for key in post_data:
         if key=='.' or key == 'category':
             continue
-        if 'blog' in key:
+        if 'Blog' in key:
             [blog_pages.append(p) for p in post_data[key]['files']]
     blog_pages = [p for p in blog_pages if p.meta.get('published', None) is not None]
     _pages = sorted(blog_pages, key=lambda x: x.meta['published'], reverse=True)

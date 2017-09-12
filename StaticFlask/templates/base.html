@@ -218,7 +218,7 @@
           <div class="cat_link">
             <a id="blog" href="{{url_for('archive')}}">Blog</a>
           </div>
-          {% for cat in root_categories if not cat == 'blog'%}
+          {% for cat in root_categories if not cat == 'Blog'%}
           <div class="cat_link">
             <a id="{{cat}}" href={{ url_for('page', path=cat) }}>{{cat | capitalize}}</a>
           </div>

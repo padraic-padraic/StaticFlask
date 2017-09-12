@@ -3,9 +3,11 @@
 {% block title %} padraic.xyz - {{formatted| last}} {% endblock %}
 {% block content %}
 <h1>
-{{ formatted | last }}
+{{formatted | last }}
 </h1>
+{% if formatted | length > 1 %}
 <p class="subtitle">{{ formatted | echo_split_path }}
+{% endif %}
 <!-- TODO: Category description? -->
 {% if data['.']['categories'] %}
 <h2>Sub-Categories</h2>
@@ -30,7 +32,7 @@
 {% for stem, value in data.items() %}
     {% if stem != '.' and stem != 'category' %}
       {% if value['files'] %}
-        <h3>{{stem|split_path|uscore_to_space |echo_split_path | e}}</h3>
+        <h3>{{stem| uscore_to_space | split_path| echo_split_path | e}}</h3>
         {% for p in value['files'] %}
                 <li><a href="{{ url_for('page', path=p.path) }}">{{p.title}}</a></li>
         {% endfor %}
