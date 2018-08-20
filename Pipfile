@@ -5,12 +5,17 @@ name = "pypi"
 
 [packages]
 flask = "*"
-py-gfm = "*"
-python-markdown-math = "*"
-pyyaml = "*"
 flask-flatpages = "*"
 frozen-flask = "*"
 pygments = "*"
+py-gfm = "*"
+python-markdown-math = "*"
+pyyaml = "*"
+
+
+[dev-packages]
+pytest = "*"
+
 
 [requires]
 python_version = "3.7"
