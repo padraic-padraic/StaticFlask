@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+py-gfm = "*"
+python-markdown-math = "*"
+pyyaml = "*"
+flask-flatpages = "*"
+frozen-flask = "*"
+pygments = "*"
+
+[requires]
+python_version = "3.7"
