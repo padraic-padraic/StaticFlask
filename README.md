@@ -32,7 +32,7 @@ The core of the app is a single URL resolver, `@app.route('/<path:path>'). The r
         - How many 'sub categories' to fetch
     + If the file doesn't exist, we fall back on defaults
 
-An additional resolvers with be added for `@app.route('/')`, to control the index. This will look to a special file, 
+An additional resolver will be added for `@app.route('/')`, to control the index. This will look to a special file, 
 `/home.yml` for controlling the main page index.
 #### Additional considerations
 
