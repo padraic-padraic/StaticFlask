@@ -10,6 +10,7 @@ python-markdown-math = "*"
 pyyaml = "*"
 flask-flatpages = {editable = true, ref = "markdown-3", git = "https://github.com/padraic-padraic/Flask-FlatPages.git"}
 flask = "*"
+six = "*"
 
 [dev-packages]
 pytest = "*"
