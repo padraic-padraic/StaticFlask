@@ -9,8 +9,8 @@ routes for the Staticflask site.
 
 import os
 
-from flask import Blueprint
-from flask_flatpages import FlatPages
+from flask import Blueprint, send_from_directory, render_template
+from flask_flatpages import FlatPages, pygments_style_defs
 from os.path import isfile, join
 from six import PY3
 
@@ -38,7 +38,8 @@ class StaticFlask(Blueprint):
     default_config = (
         ('FLATPAGES_MARKDOWN_EXTENSIONS',
          ['codehilite', 'toc', 'mdx_math', 'mdx_partial_gfm']),
-        ('FLATPAGES_CASE_INSENSITIVE', True)
+        ('FLATPAGES_CASE_INSENSITIVE', True),
+        ('FLATPAGES_INSTANCE_FOLDER', False)
     )
     debug_config = ()
 
@@ -49,6 +50,7 @@ class StaticFlask(Blueprint):
         self.config = {}
         self.blueprint_root = False
         self.entries = FlatPages()
+        self.reserved_paths = ['/cdn', '/media']
         if 'root_path' in kwargs:
             self.blueprint_root = True
         if PY3:
@@ -92,18 +94,47 @@ class StaticFlask(Blueprint):
             self.config.setdefault(key, val)#TODO: Default template config?
         app.config.from_mapping(self.config)
 
+    def init_app(self, app):
+        self.entries.init_app(app)
+        self.app = app
+
     def register(self, app, *args, **kwargs):
         force_config_reload = kwargs.pop('force_config_reload', False)
         self._load_config(app, force_reload=force_config_reload)
-        self.entries.init_app(app)
-        # Entry walker
+        self.init_app(app)
+        self.setup_routes()
         # Category Walker
         super().register(self, app, *args, **kwargs)
 
-    def setup_page_routes(self):
+    def serve_media(self, filename):
+        return send_from_directory(
+            '/'.join((self.app.config['FLATPAGES_ROOT'], 'media')), filename
+        )
+
+    def resolve_and_render_path(self, path):
+        #Temporarily, this just uses "get or 404"
+        page = self.entries.get_or_404(path)
+        return render_template(
+            'page.html',
+            page=page,
+            template_params=self.app.config.get_namespace('SFLASK_TEMPLATE')
+        )
+
+    def pygments_css(self):
+        return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
+
+    def setup_routes(self):
         """Walk through the entries in the initialized FlatPages instance
         and create routes for them. Fails in the FlatPages instance has not been"""
-        pass
+        if not hasattr(self.entries, 'app'):
+            raise ValueError(
+                'The FlatPages instance at `StaticFlask.entries` must be '
+                'initialised with the application before the Blueprint creates '
+                'routes.'
+                )
+        self.add_url_rule('/<path:path>', self.resolve_and_render_path)
+        self.add_url_rule('/cdn/<path:filename>', self.serve_media)
+        self.add_url_rule('/pygments.css', self.pygments_css)
 
     def setup_freezer(self, freezer):
         #Attach a bunch of generators to the freezer
