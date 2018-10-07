@@ -7,3 +7,4 @@ StaticFlask/static/images/*
 StaticFlask/pages/.gitignore
 StaticFlask/pages/*.md
 Pipfile.lock
+.DS_Store
