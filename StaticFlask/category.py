@@ -18,13 +18,12 @@ class Category(object):
     
     default_config = (
         ('display_type', 'category'),
-        ('template', {
-            'index': 'index.html',
-            'category': 'category.html'
-            }
-        ),
         ('subcategory-depth', '1'),
     )
+    default_template = {
+        'index': 'index.html',
+        'category': 'category.html'
+    }
 
     validation = {
         'display_type': ['index', 'category', 'custom']
@@ -58,13 +57,11 @@ class Category(object):
             for key, val in iteritems(cfg):
                 config[key] = val
         for key, val in self.default_config:
-            if isinstance(val, dict):
-                try:
-                    config.setdefault(key, val[key])
-                except KeyError:
-                    pass
-            else:
-                config.setdefault(key, val)
+            config.setdefault(key, val)
+        config.setdefault('template',
+                          self.default_template.get(
+                              config['display_type'], None)
+                         )
         config.setdefault('title',
                           self._format_category_name(split(self.path)[1]))
         self._validate_config(config)
