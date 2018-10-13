@@ -7,16 +7,16 @@ routes for the Staticflask site.
 
 """
 
-import os
+from os.path import isfile, join
 
 from flask import Blueprint, send_from_directory, render_template
-from flask_flatpages import FlatPages, pygments_style_defs
-from os.path import isfile, join
-from six import PY3
+from flask_flatpages import Page, pygments_style_defs
+from six import iteritems, PY3
 
 import yaml
 
-# from .category import Category
+from .category import Category
+from .categorized_pages import CategorizedPages
 
 class StaticFlask(Blueprint):
     # Static Flask app
@@ -32,9 +32,6 @@ class StaticFlask(Blueprint):
     # Also handles checking clashing names (reserve names feature?)
     # Register freezer generators too
 
-        #TODO: How to handle a flatpages name....? 
-        #TODO: Case sensitivity in config 🙄
-
     default_config = (
         ('FLATPAGES_MARKDOWN_EXTENSIONS',
          ['codehilite', 'toc', 'mdx_math', 'mdx_partial_gfm']),
@@ -46,13 +43,17 @@ class StaticFlask(Blueprint):
     def __init__(self, *args, **kwargs):
         """Initialise the Blueprint. Takes the same arguments as the 
         Flask Blueprint class, plus one additional parameter."""
-        self.cfg_path = kwargs.pop('sf_cfg', 'settings.yml')
+        self.cfg_path = kwargs.pop('sf_cfg_file', 'settings.yml')
         self.config = {}
         self.blueprint_root = False
-        self.entries = FlatPages()
+        self.entries = CategorizedPages()
         self.reserved_paths = ['/cdn', '/media']
+        self.app = None
         if 'root_path' in kwargs:
             self.blueprint_root = True
+        if 'static_folder' not in kwargs:
+            template_folder = kwargs.get('template_folder', 'templates')
+            kwargs['static_folder'] = join(template_folder, 'static')
         if PY3:
             super().__init__(*args, **kwargs)
         else:
@@ -64,7 +65,7 @@ class StaticFlask(Blueprint):
         if not force_reload and self.config:
             return
         if self.blueprint_root:
-            file_root = os.path.join(self.root_path, self.cfg_path)
+            file_root = join(self.root_path, self.cfg_path)
         else:
             if app.instance_relative_config:
                 file_root = app.instance_path
@@ -76,10 +77,10 @@ class StaticFlask(Blueprint):
                 cfg = yaml.load(cfg_file)
             app_config = cfg.pop('flask_config', {})
             template_config = cfg.pop('template_config', {})
-            for key, val in app_config: #TODO: Validation? Required params?
+            for key, val in iteritems(app_config): #TODO: Validation? Required params?
                 self.config[key.upper()] = val
-            for key, val in template_config:
-                self.config['SFLASK_TEMPLATE_{}'.format(key)] = val
+            for key, val in iteritems(template_config):
+                self.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val
         else:
             if self.cfg_path != 'settings.yml':
                 raise FileNotFoundError(
@@ -101,14 +102,16 @@ class StaticFlask(Blueprint):
     def register(self, app, *args, **kwargs):
         force_config_reload = kwargs.pop('force_config_reload', False)
         self._load_config(app, force_reload=force_config_reload)
-        self.init_app(app)
         self.setup_routes()
         # Category Walker
-        super().register(self, app, *args, **kwargs)
+        if PY3:
+            super().register(self, app, *args, **kwargs)
+        else:
+            super(StaticFlask, self).register(self, app, *args, **kwargs)
 
-    def serve_media(self, filename):
+    def serve_page_media(self, filename):
         return send_from_directory(
-            '/'.join((self.app.config['FLATPAGES_ROOT'], 'media')), filename
+            join((self.app.config['FLATPAGES_ROOT'], 'media')), filename
         )
 
     def resolve_and_render_path(self, path):
@@ -120,7 +123,9 @@ class StaticFlask(Blueprint):
             template_params=self.app.config.get_namespace('SFLASK_TEMPLATE')
         )
 
-    def pygments_css(self):
+    @staticmethod
+    def pygments_css():
+        """Serve the Pygments CSS file for codehilite."""
         return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
 
     def setup_routes(self):
@@ -133,9 +138,6 @@ class StaticFlask(Blueprint):
                 'routes.'
                 )
         self.add_url_rule('/<path:path>', self.resolve_and_render_path)
-        self.add_url_rule('/cdn/<path:filename>', self.serve_media)
-        self.add_url_rule('/pygments.css', self.pygments_css)
+        self.add_url_rule('/media/<path:filename>', self.serve_page_media)
+        self.add_url_rule('/static/pygments.css', self.pygments_css)
 
-    def setup_freezer(self, freezer):
-        #Attach a bunch of generators to the freezer
-        pass
