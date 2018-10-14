@@ -102,7 +102,7 @@ class StaticFlask(Blueprint):
             self.config.setdefault(key, val)#TODO: Default template config?
         app.config.from_mapping(self.config)
 
-    def load_entires(self):
+    def load_entries(self):
         if self.app is None:
             raise AttributeError(
                 'Static Flask needs to be configured before we initialize '
@@ -114,8 +114,8 @@ class StaticFlask(Blueprint):
     def register(self, app, *args, **kwargs):
         force_config_reload = kwargs.pop('force_config_reload', False)
         self.load_config(app, force_reload=force_config_reload)
+        self.load_entries()
         self.setup_routes()
-        # Category Walker
         if PY3:
             super().register(self, app, *args, **kwargs)
         else:

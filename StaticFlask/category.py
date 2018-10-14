@@ -1,6 +1,7 @@
 """Defines the 'Category' class, with represents a category of posts."""
 
 from os.path import isfile, join, split
+import re
 
 from six import iteritems
 from werkzeug.utils import cached_property
@@ -23,7 +24,8 @@ class Category(object):
     default_config = (
         ('display_type', 'category'),
         ('subcategory-depth', '1'),
-        ('paginate', False)
+        ('paginate', False),
+        ('exclude_from', "")
     )
 
     display_defaults = {
@@ -66,6 +68,9 @@ class Category(object):
         else:
             with open(self._dir_path, 'r') as _f:
                 cfg = yaml.load(_f)
+            exclude_from = cfg.pop('exclude_from', '')
+            if exclude_from:
+                self.config['exclude_from'] = re.compile(exclude_from)
             for key, val in iteritems(cfg):
                 config[key] = val
         for key, val in self.default_config:
@@ -112,6 +117,9 @@ class Category(object):
         return name.title()
 
     def sub_entry_key(self, entry, depth):
+        if self.config['exclude_from']:
+            if self.config['exclude_from'].search(entry.path):
+                return False
         if entry.path.rsplit('/', maxsplit=depth) == self.path:
             return True
         return False
@@ -125,7 +133,7 @@ class Category(object):
 
     @cached_result
     def included_posts(self, *args, sort_key=None,
-                         force_reload=False):
+                       force_reload=False):
         """Fetch the pages to be included with this category.
         We cache the result"""
         try:
