@@ -8,18 +8,27 @@ from werkzeug.utils import cached_property
 
 import yaml
 
-def cached_result(func):
+def cached_category_item(func):
+    """Wraps a Category method, caching the result for quick reuse. """
     def cache_wrapper(self, *args, **kwargs):
         name = func.__name__
         force_reload = kwargs.get('force_reload', False)
         if name in self.__dict__ and not force_reload:
             return self.__dict__[name]
-        res = func(self, *args, **kwargs)
+        try:
+            pages_instance = args[0]
+        except IndexError:
+            raise AttributeError(
+                'No cached {} were found. To load them, '
+                'the CategorizedPages instance must be passed as a positional '
+                'argument.'.format(name.split('_'[1]))
+            )
+        res = func(self, pages_instance, **kwargs)
         self.__dict__[name] = res
         return res
     return cache_wrapper
 
-class Category(object):
+class Category():
     
     default_config = (
         ('display_type', 'category'),
@@ -131,19 +140,10 @@ class Category(object):
                       if self.sub_entry_key(entry, depth)]
         return entries
 
-    @cached_result
-    def included_posts(self, *args, sort_key=None,
-                       force_reload=False):
+    @cached_category_item
+    def included_posts(self, pages_instance, sort_key=None, force_reload=False):
         """Fetch the pages to be included with this category.
         We cache the result"""
-        try:
-            pages_instance = args[0]
-        except IndexError:
-            raise AttributeError(
-                'No cached pages were found. To load the associated entries, '
-                'the CategorizedPages instance must be passed as a positional '
-                'argument.'
-            )
         if sort_key is None:
             def published_key(page):
                 return page.meta['published']
@@ -153,29 +153,13 @@ class Category(object):
         pages.sort(sort_key)
         return pages
 
-    @cached_result
-    def included_categories(self, *args, force_reload=False):
-        try:
-            pages_instance = args[0]
-        except IndexError:
-            raise AttributeError(
-                'No cached categories were found. To load the associated entries, '
-                'the CategorizedPages instance must be passed as a positional '
-                'argument.'
-            )
+    @cached_category_item
+    def included_categories(self, pages_instance, force_reload=False):
         categories = self._included_entries(pages_instance.iter_categories())
         return categories
 
-    @cached_result
-    def get_parents(self, *args, force_reload=False):
-        try:
-            pages_instance = args[0]
-        except IndexError:
-            raise AttributeError(
-                'No cached categories were found. To load the associated entries, '
-                'the CategorizedPages instance must be passed as a positional '
-                'argument.'
-            )
+    @cached_category_item
+    def get_parents(self, pages_instance, force_reload=False):
         parents = [pages_instance.get(parent)
                    for parent in self.config['parents']]
         return parents
