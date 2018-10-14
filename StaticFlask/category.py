@@ -7,22 +7,34 @@ from werkzeug.utils import cached_property
 
 import yaml
 
-# Category object
-# Init from a dir path
-# Load config, fetch all subcategories
-# Todo: How to efficiently handle subposts? (If needed)
-#   => Use the pages instance and store a set of paths?
-#   => Use relative paths...?
+def cached_result(func):
+    def cache_wrapper(self, *args, **kwargs):
+        name = func.__name__
+        force_reload = kwargs.get('force_reload', False)
+        if name in self.__dict__ and not force_reload:
+            return self.__dict__[name]
+        res = func(self, *args, **kwargs)
+        self.__dict__[name] = res
+        return res
+    return cache_wrapper
 
 class Category(object):
     
     default_config = (
         ('display_type', 'category'),
         ('subcategory-depth', '1'),
+        ('paginate', False)
     )
-    default_template = {
-        'index': 'index.html',
-        'category': 'category.html'
+
+    display_defaults = {
+        'index': {
+            'template': 'index.html',
+            'paginate': True,
+        },
+        'category': {
+            'template': 'category.html',
+            'paginate': False
+        }
     }
 
     validation = {
@@ -58,10 +70,9 @@ class Category(object):
                 config[key] = val
         for key, val in self.default_config:
             config.setdefault(key, val)
-        config.setdefault('template',
-                          self.default_template.get(
-                              config['display_type'], None)
-                         )
+        for key, val in self.display_defaults.get(self.config['display_type'],
+                                                  {}):
+            self.config.setdefault(key, val)
         config.setdefault('title',
                           self._format_category_name(split(self.path)[1]))
         self._validate_config(config)
@@ -100,20 +111,23 @@ class Category(object):
         name.replace('_', ' ')
         return name.title()
 
-    def sub_page_key(self, page, depth):
-        if page.path.rsplit('/', maxsplit=depth) == self.path:
+    def sub_entry_key(self, entry, depth):
+        if entry.path.rsplit('/', maxsplit=depth) == self.path:
             return True
         return False
 
-    def included_entries(self, *args, sort_key=None,
+    def _included_entries(self, collection):
+        entries = []
+        for depth in range(self.config['subcategory-depth']+1):
+            entries += [entry for entry in collection
+                      if self.sub_entry_key(entry, depth)]
+        return entries
+
+    @cached_result
+    def included_posts(self, *args, sort_key=None,
                          force_reload=False):
         """Fetch the pages to be included with this category.
         We cache the result"""
-        if not force_reload:
-            try:
-                return self.__dict__['_included_entries']
-            except KeyError:
-                pass
         try:
             pages_instance = args[0]
         except IndexError:
@@ -126,10 +140,34 @@ class Category(object):
             def published_key(page):
                 return page.meta['published']
             sort_key = published_key
-        pages = []
-        for depth in range(self.config['subcategory-depth']+1):
-            pages += [page for page in pages_instance
-                      if self.sub_page_key(page, depth)]
+        pages = self._included_entries(pages_instance.iter_pages())
+        pages = [page for page in pages if not page.meta.get('draft', False)]
         pages.sort(sort_key)
-        self.__dict__['_included_entries'] = pages
         return pages
+
+    @cached_result
+    def included_categories(self, *args, force_reload=False):
+        try:
+            pages_instance = args[0]
+        except IndexError:
+            raise AttributeError(
+                'No cached categories were found. To load the associated entries, '
+                'the CategorizedPages instance must be passed as a positional '
+                'argument.'
+            )
+        categories = self._included_entries(pages_instance.iter_categories())
+        return categories
+
+    @cached_result
+    def get_parents(self, *args, force_reload=False):
+        try:
+            pages_instance = args[0]
+        except IndexError:
+            raise AttributeError(
+                'No cached categories were found. To load the associated entries, '
+                'the CategorizedPages instance must be passed as a positional '
+                'argument.'
+            )
+        parents = [pages_instance.get(parent)
+                   for parent in self.config['parents']]
+        return parents
