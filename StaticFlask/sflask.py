@@ -12,11 +12,9 @@ from os.path import isfile, join
 from flask import Blueprint, send_from_directory, redirect, render_template, url_for
 from flask_flatpages import Page, pygments_style_defs
 from six import iteritems, PY3
-from werkzeug.utils import cached_property
 
 import yaml
 
-from .category import Category
 from .categorized_pages import CategorizedPages
 
 class StaticFlask(Blueprint):
@@ -35,7 +33,8 @@ class StaticFlask(Blueprint):
 
     default_config = (
         ('FLATPAGES_MARKDOWN_EXTENSIONS',
-         ['codehilite', 'toc', 'mdx_math', 'mdx_partial_gfm']),
+         ['codehilite', 'toc', 'mdx_math', 'mdx_partial_gfm']
+        ),
         ('FLATPAGES_CASE_INSENSITIVE', True),
         ('FLATPAGES_INSTANCE_FOLDER', False),
         ('PAGINATE_STEP', 10)
