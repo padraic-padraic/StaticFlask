@@ -129,8 +129,13 @@ class StaticFlask(Blueprint):
     def render_path(self, path):
         entry = self.entries.get(path)
         if isinstance(entry, Page):
+            post_type = entry.meta.get('post_type', '')
+            if post_type:
+                post_template = '{}_page.html'.format(post_type)
+            else:
+                post_template = 'page.html'
             return render_template(
-                'page.html',
+                post_template,
                 page=entry,
                 template_params=self.app.config.get_namespace('SFLASK_TEMPLATE')
             )
