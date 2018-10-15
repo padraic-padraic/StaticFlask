@@ -32,21 +32,27 @@ class StaticFlask(Blueprint):
     def __init__(self, **kwargs):
         """Initialise the Blueprint. Takes the same arguments as the 
         Flask Blueprint class, plus one additional parameter."""
-        self.cfg_path = kwargs.pop('config_file', 'settings.yml')
-        self.config = {}
+        blueprint_name = kwargs.pop('name', 'static_flask')
+        import_name = kwargs.pop('import_name', 'StaticFlask')
         self.blueprint_root = False
         self.entries = CategorizedPages()
-        self.reserved_paths = ['/cdn', '/media']
-        self.app = None
+        self.reserved_paths = ['/cdn', '/media'] #TODO: Check for clashes?
+        app = kwargs.pop('app', None)
+        if app is not None:
+            self.initialize(
+                app,
+                cfg_filename=kwargs.pop('cfg_filename', 'settings.yml')
+            )
         if 'root_path' in kwargs:
             self.blueprint_root = True
         if 'static_folder' not in kwargs:
             template_folder = kwargs.get('template_folder', 'templates')
             kwargs['static_folder'] = join(template_folder, 'static')
         if PY3:
-            super().__init__('static_flask', 'StaticFlask', **kwargs)
+            super().__init__(blueprint_name, import_name, **kwargs)
         else:
-            super(StaticFlask, self).__init__('static_flask', 'StaticFlask', **kwargs)
+            super(StaticFlask, self).__init__(blueprint_name, import_name,
+                                              **kwargs)
 
     @property
     def root(self):
@@ -59,49 +65,40 @@ class StaticFlask(Blueprint):
                 file_root = self.app.root_path
         return file_root
     
-    def load_config(self, app, force_reload=False):
-        """Load the StaticFlask config and apply the configuration to the
-        flask.Flask application."""
+    def initialize(self, app, **kwargs):
         self.app = app
-        if not force_reload and self.config:
-            return
-        file_path = join(self.root, self.cfg_path)
+        self._load_config(app, **kwargs)
+        self.entries.init_app(app)
+
+    def _load_config(self, cfg_filename):
+        """Load the StaticFlask config and apply the configuration to the
+        flask.Flask application."""     
+        file_path = join(self.root, cfg_filename)
         if isfile(file_path):
             with open(file_path, 'r') as cfg_file:
                 cfg = yaml.load(cfg_file)
             app_config = cfg.pop('flask_config', {})
             template_config = cfg.pop('template_config', {})
             for key, val in iteritems(app_config): #TODO: Validation? Required params?
-                self.config[key.upper()] = val
+                self.app.config[key.upper()] = val
             for key, val in iteritems(template_config):
-                self.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val
+                self.app.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val
         else:
-            if self.cfg_path != 'settings.yml':
+            if cfg_filename != 'settings.yml':
                 raise FileNotFoundError(
                     'StaticFlask was not able to locate the specified config '
                     'file. The path given was:\n {} \n Which I looked for at'
-                    ' the absolute path:\n {}'.format(self.cfg_path, file_path)
+                    ' the absolute path:\n {}'.format(cfg_filename, file_path)
                 )
-        if app.debug:
+        if self.app.debug:
             for key, val in self.debug_config:
-                self.config.setdefault(key, val)
+                self.app.config.setdefault(key, val)
         for key, val in self.default_config:
-            self.config.setdefault(key, val)#TODO: Default template config?
-        app.config.from_mapping(self.config)
-
-    def load_entries(self):
-        if self.app is None:
-            raise AttributeError(
-                'Static Flask needs to be configured before we initialize '
-                'extensions and load the content. Please call '
-                'StaticFlask.load_config.'
-            )
-        self.entries.init_app(self.app)
+            self.app.config.setdefault(key, val)#TODO: Default template config?
 
     def register(self, app, *args, **kwargs):
-        force_config_reload = kwargs.pop('force_config_reload', False)
-        self.load_config(app, force_reload=force_config_reload)
-        self.load_entries()
+        if self.app is None:
+            self.initialize(app, cfg_filename=kwargs.pop('cfg_filename'))
         self.setup_routes()
         if PY3:
             super().register(self, app, *args, **kwargs)
@@ -137,7 +134,7 @@ class StaticFlask(Blueprint):
             'template_params': self.app.config.get_namespace('SFLASK_TEMPLATE')
         }
         if entry['paginate']:
-            included_posts = included_posts[:self.config['PAGINATE_STEP']]
+            included_posts = included_posts[:self.app.config['PAGINATE_STEP']]
             template_data['nextpage'] = 2
         template_data['posts'] = included_posts
         return render_template(template, **template_data)

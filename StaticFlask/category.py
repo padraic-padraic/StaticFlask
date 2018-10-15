@@ -98,7 +98,7 @@ class Category():
         return config
 
     def _validate_config(self, config):
-        if not 'tempalte' in config:
+        if not 'template' in config:
             raise ValueError(
                 'No template specified for the Category. If using a '
                 '"custom" category layout, you must also specify a '
@@ -129,6 +129,8 @@ class Category():
         if self.config['exclude_from']:
             if self.config['exclude_from'].search(entry.path):
                 return False
+        if depth <= 0:
+            return self.path in entry.path
         if entry.path.rsplit('/', maxsplit=depth) == self.path:
             return True
         return False

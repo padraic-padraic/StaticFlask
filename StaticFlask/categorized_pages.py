@@ -59,7 +59,8 @@ class CategorizedPages(FlatPages):
         self._check_path_clashes(categories)
         return categories
 
-    def _check_path_clashes(self, collection):
+    @staticmethod
+    def _check_path_clashes(collection):
         """Loops over paths, making sure none of them clash with StaticFlasks's
         pagination and would thus be hidden."""
         if any(NUMERIC_REGEXP.search(path) for path in iterkeys(collection)):
