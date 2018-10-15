@@ -18,22 +18,10 @@ import yaml
 from .categorized_pages import CategorizedPages
 
 class StaticFlask(Blueprint):
-    # Static Flask app
-    # Subclass blueprint
-    # Register routes etc
-    # App config from file, or else expect it to be in the app
-    # Overload 'register', enforce default required config in the app, then call super
-    # 'Entries' are the pages
-    # 'Categories' are category objects
-    #  Indexed with path
-    # 'Render Entry' and 'Render Category' functions
-    # Accesses category template or page template, and fills path with template dir from config
-    # Also handles checking clashing names (reserve names feature?)
-    # Register freezer generators too
 
     default_config = (
         ('FLATPAGES_MARKDOWN_EXTENSIONS',
-         ['codehilite', 'toc', 'mdx_math', 'mdx_partial_gfm']
+         ['codehilite', 'toc', 'mdx_math']
         ),
         ('FLATPAGES_CASE_INSENSITIVE', True),
         ('FLATPAGES_INSTANCE_FOLDER', False),

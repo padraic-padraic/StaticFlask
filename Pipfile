@@ -5,12 +5,11 @@ name = "pypi"
 
 [packages]
 frozen-flask = "*"
-py-gfm = "*"
 python-markdown-math = "*"
 pyyaml = "*"
-flask-flatpages = {editable = true, ref = "markdown-3", git = "https://github.com/padraic-padraic/Flask-FlatPages.git"}
 flask = "*"
 six = "*"
+"flask-flatpages-0-7-0-dev0" = {editable = true, ref = "markdown-3", git = "https://github.com/padraic-padraic/Flask-Flatpages.git"}
 
 [dev-packages]
 pytest = "*"
