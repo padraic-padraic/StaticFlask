@@ -20,12 +20,7 @@ from .categorized_pages import CategorizedPages
 class StaticFlask(Blueprint):
 
     default_config = (
-        ('FLATPAGES_MARKDOWN_EXTENSIONS',
-         ['codehilite', 'toc', 'mdx_math']
-        ),
-        ('FLATPAGES_CASE_INSENSITIVE', True),
-        ('FLATPAGES_INSTANCE_FOLDER', False),
-        ('PAGINATE_STEP', 10)
+        ('PAGINATE_STEP', 10),
     )
     debug_config = ()
 

@@ -10,8 +10,16 @@ NUMERIC_REGEXP = re.compile(r'\d+')
 
 class CategorizedPages(FlatPages):
 
+    extra_default_config = (
+        ('FLATPAGES_MARKDOWN_EXTENSIONS', ['codehilite', 'toc', 'mdx_math']),
+        ('FLATPAGES_CASE_INSENSITIVE', True),
+        ('FLATPAGES_INSTANCE_FOLDER', False),
+    )
+
     def __init__(self, app=None, name=None):
-        FlatPages.__init__(self, app, name)
+        FlatPages.__init__(self, None, name)
+        if app:
+            self.init_app(app)
 
     def reload(self):
         if '_pages' in self.__dict__:
@@ -29,6 +37,15 @@ class CategorizedPages(FlatPages):
         if path in categories:
             return categories[path]
         return default
+
+    def init_app(self, app):
+        for key, value in self.extra_default_config:
+            config_key = '_'.join((self.config_prefix, key.upper()))
+            app.config.setdefault(config_key, value)
+        if PY3:
+            super().init_app(app)
+        else:
+            super(CategorizedPages, self).init_app(app)
 
     def __iter__(self):
         paths = set((path for path in iterkeys(self._pages)))
