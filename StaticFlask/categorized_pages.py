@@ -1,5 +1,6 @@
 import re
 
+from flask import abort
 from flask_flatpages import FlatPages
 from six import iterkeys, itervalues
 from werkzeug.utils import cached_property
@@ -31,8 +32,6 @@ class CategorizedPages(FlatPages):
     def get(self, path, default=None):
         categories = self._categories
         pages = self._pages
-        if path == '/':
-            return categories['']
         if path in pages:
             return pages[path]
         if path in categories:
@@ -40,7 +39,13 @@ class CategorizedPages(FlatPages):
         return default
 
     def get_or_404(self, path):
-        pass
+        categories = self._categories
+        pages = self._pages
+        if path in pages:
+            return pages[path]
+        if path in categories:
+            return categories[path]
+        abort(404)
 
     def init_app(self, app):
         for key, value in self.extra_default_config:

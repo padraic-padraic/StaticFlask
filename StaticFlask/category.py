@@ -3,28 +3,42 @@
 from os.path import isfile, join, split
 import re
 
-from six import iteritems
+from six import iteritems, PY3
 from werkzeug.utils import cached_property
 
 import yaml
+
+if PY3:
+    def compat_rsplit(path, sep, maxsplit=-1):
+        """Wraps rsplit for python 3"""
+        return path.rsplit(sep, maxsplit=maxsplit)
+else:
+    def compat_rsplit(path, sep, maxsplit=-1):
+        """Wraps rsplit for python 2"""
+        return path.rsplit(sep, maxsplit)
 
 def cached_category_item(func):
     """Wraps a Category method, caching the result for quick reuse. """
     def cache_wrapper(self, *args, **kwargs):
         name = func.__name__
         force_reload = kwargs.pop('force_reload', False)
-        if name in self.__dict__ and not force_reload:
-            return self.__dict__[name]
+        if force_reload:
+            try:
+                del self._cache[name]
+            except KeyError:
+                pass
+        if name in self._cache:
+            return self._cache[name]
         try:
             pages_instance = args[0]
         except IndexError:
             raise AttributeError(
                 'No cached {} were found. To load them, '
                 'the CategorizedPages instance must be passed as a positional '
-                'argument.'.format(name.split('_'[1]))
+                'argument.'.format(name.split('_')[1])
             )
         res = func(self, pages_instance, **kwargs)
-        self.__dict__[name] = res
+        self._cache[name] = res
         return res
     return cache_wrapper
 
@@ -34,7 +48,7 @@ class Category():
         ('display_type', 'category'),
         ('subcategory_depth', 1),
         ('paginate', False),
-        ('exclude_from', "")
+        ('exclude_from', '')
     )
 
     display_defaults = {
@@ -63,6 +77,7 @@ class Category():
         self.path = relative_path
         self._cfg_file = cfg_file
         self._file_path = join(pages_root, relative_path.lstrip('/'), cfg_file)
+        self._cache = {}
 
     def _load_config(self):
         config = {}
@@ -79,7 +94,11 @@ class Category():
                 loaded_cfg = yaml.load(_f)
             exclude_from = loaded_cfg.pop('exclude_from', '')
             if exclude_from:
-                config['exclude_from'] = re.compile(exclude_from)
+                if isinstance(exclude_from, list):
+                    config['exclude_from'] = [re.compile(regex)
+                                              for regex in exclude_from]
+                else:
+                    config['exclude_from'] = [re.compile(exclude_from)]
             for key, val in iteritems(loaded_cfg):
                 config[key] = val
         for key, val in self.default_config:
@@ -92,10 +111,12 @@ class Category():
                           self._format_category_name(split(self.path)[1]))
         self._validate_config(config)
         config['parents'] = []
-        parent = self.path.rsplit('/', maxsplit=1)[0]
+        parent = self.path.rpartition('/', )[0]
         while parent:
             config['parents'].append(parent)
-            parent = parent.rsplit('/', maxsplit=1)[0]
+            parent = parent.rpartition('/')[0]
+        else:
+            config['parents'].append('')
         return config
 
     def _validate_config(self, config):
@@ -135,11 +156,13 @@ class Category():
 
     def sub_entry_key(self, entry, depth):
         if self['exclude_from']:
-            if self['exclude_from'].search(entry.path):
+            if any(regex.search(entry.path) for regex in self['exclude_from']):
                 return False
-        if depth <= 0:
-            return self.path in entry.path            
-        if entry.path.rsplit('/', maxsplit=depth) == self.path:
+        if depth < 0:
+            return self.path in entry.path and self.path != entry.path
+        if depth == 0:
+            return self.path == entry.path.rpartition('/')[0]     
+        if compat_rsplit(entry.path, '/', maxsplit=depth) == self.path:
             return True
         return False
 
