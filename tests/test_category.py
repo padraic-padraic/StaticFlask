@@ -52,3 +52,19 @@ def test_file_finding(pages_root):
     cat = Category(pages_root, '/', 'conf.yml')
     with pytest.raises(FileNotFoundError):
         conf = cat.config
+
+def test_type_validation(tmpdir):
+    invalid = {'subcategory_depth', '1'}
+    with open(tmpdir.join('settings.yml'), 'w') as _f:
+        _f.write(yaml.dump(invalid))
+    cat = Category(tmpdir, '')
+    with pytest.raises(TypeError):
+        conf = cat.config
+
+def test_value_validation(tmpdir):
+    invalid = {'display_type': 'categry'} #Typo!
+    with open(tmpdir.join('settings.yml'), 'w') as _f:
+        _f.write(yaml.dump(invalid))
+    cat = Category(tmpdir, '')
+    with pytest.raises(ValueError):
+        conf = cat.config
