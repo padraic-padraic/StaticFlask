@@ -1,0 +1,10 @@
+sudo: true
+language: python
+python: 
+  - "3.7"
+
+install:
+  - pip intall pipenv
+
+script:
+  - pipenv install --dev && pipenv run pytest --cov==StaticFlask -v
