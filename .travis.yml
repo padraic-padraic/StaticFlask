@@ -6,7 +6,7 @@ python:
 dist: xenial
 
 install:
-  - pip intall pipenv
+  - pip install pipenv
 
 script:
   - pipenv install --dev && pipenv run pytest --cov==StaticFlask -v
