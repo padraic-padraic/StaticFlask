@@ -1,23 +1,24 @@
 import re
 
 from flask_flatpages import FlatPages
-from six import iterkeys, itervalues, PY3
+from six import iterkeys, itervalues
 from werkzeug.utils import cached_property
 
 from .category import Category
 
-NUMERIC_REGEXP = re.compile(r'\d+')
+NUMERIC_REGEXP = re.compile(r'/\d+')
 
 class CategorizedPages(FlatPages):
 
     extra_default_config = (
-        ('FLATPAGES_MARKDOWN_EXTENSIONS', ['codehilite', 'toc', 'mdx_math']),
-        ('FLATPAGES_CASE_INSENSITIVE', True),
-        ('FLATPAGES_INSTANCE_FOLDER', False),
+        ('markdown_extensions', ['codehilite', 'toc', 'mdx_math']),
+        ('case_insensitive', True),
+        ('instance_folder', False),
+        ('extension', '.md')
     )
 
     def __init__(self, app=None, name=None):
-        FlatPages.__init__(self, None, name)
+        super(CategorizedPages, self).__init__(None, name)
         if app:
             self.init_app(app)
 
@@ -38,14 +39,14 @@ class CategorizedPages(FlatPages):
             return categories[path]
         return default
 
+    def get_or_404(self, path):
+        pass
+
     def init_app(self, app):
         for key, value in self.extra_default_config:
             config_key = '_'.join((self.config_prefix, key.upper()))
             app.config.setdefault(config_key, value)
-        if PY3:
-            super().init_app(app)
-        else:
-            super(CategorizedPages, self).init_app(app)
+        super(CategorizedPages, self).init_app(app)
 
     def __iter__(self):
         paths = set((path for path in iterkeys(self._pages)))
@@ -61,10 +62,7 @@ class CategorizedPages(FlatPages):
 
     @cached_property
     def _pages(self):
-        if PY3:
-            pages = super()._pages
-        else:
-            pages = super(CategorizedPages, self)._pages
+        pages = super(CategorizedPages, self)._pages
         self._check_path_clashes(pages)
         return pages
 

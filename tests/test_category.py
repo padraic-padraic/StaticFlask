@@ -1,16 +1,12 @@
 """Tests for the StaticFlask.Category class."""
 
-import pytest
 import re
-import yaml
-
 from os.path import join
+
+import pytest
+import yaml
 from six import iteritems
 from StaticFlask import Category
-
-@pytest.fixture(scope="session")
-def pages_root(test_dir):
-    return join(test_dir, 'pages')
 
 def test_default_conf(pages_root):
     rel_path = '/root_included/default_config'

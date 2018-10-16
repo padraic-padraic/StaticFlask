@@ -134,33 +134,31 @@ class Category():
         return name.title()
 
     def sub_entry_key(self, entry, depth):
-        if self.config['exclude_from']:
-            if self.config['exclude_from'].search(entry.path):
+        if self['exclude_from']:
+            if self['exclude_from'].search(entry.path):
                 return False
         if depth <= 0:
-            return self.path in entry.path
+            return self.path in entry.path            
         if entry.path.rsplit('/', maxsplit=depth) == self.path:
             return True
         return False
 
     def _included_entries(self, collection):
         entries = []
-        for depth in range(self.config['subcategory_depth']+1):
-            entries += [entry for entry in collection
-                        if self.sub_entry_key(entry, depth)]
+        if self['subcategory_depth'] == -1:
+            entries = [entry for entry in collection
+                       if self.sub_entry_key(entry, -1)]
+        else:
+            for depth in range(self['subcategory_depth']+1):
+                entries += [entry for entry in collection
+                            if self.sub_entry_key(entry, depth)]
         return entries
 
     @cached_category_item
-    def included_posts(self, pages_instance, sort_key=None):
+    def included_posts(self, pages_instance):
         """Fetch the pages to be included with this category.
         We cache the result"""
-        if sort_key is None:
-            def published_key(page):
-                return page.meta['published']
-            sort_key = published_key
         pages = self._included_entries(pages_instance.iter_pages())
-        pages = [page for page in pages if not page.meta.get('draft', False)]
-        pages.sort(sort_key)
         return pages
 
     @cached_category_item

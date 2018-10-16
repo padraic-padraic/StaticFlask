@@ -74,7 +74,7 @@ class StaticFlask(Blueprint):
                 cfg = yaml.load(cfg_file)
             app_config = cfg.pop('flask_config', {})
             template_config = cfg.pop('template_config', {})
-            for key, val in iteritems(app_config): #TODO: Validation? Required params?
+            for key, val in iteritems(app_config): #TODO: Validation? Required params? Debug?
                 self.app.config[key.upper()] = val
             for key, val in iteritems(template_config):
                 self.app.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val
@@ -155,7 +155,8 @@ class StaticFlask(Blueprint):
             category=entry,
             posts=included_posts,
             sub_categories=included_categories,
-            parents=parents
+            parents=parents,
+            template_params = self.app.config.get_namespace('SFLASK_TEMPLATE')
         )
 
     @staticmethod
