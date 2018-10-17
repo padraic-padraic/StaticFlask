@@ -1,0 +1,8 @@
+flask_config:
+  paginate_step: 5
+  freezer_base_url: http://padraic.xyz
+  debug:
+    freezer_base_url: http://localhost/
+template_config:
+  title: A Website
+  foo: Bar

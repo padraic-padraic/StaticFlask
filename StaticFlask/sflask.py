@@ -11,7 +11,7 @@ from os.path import isfile, join
 
 from flask import Blueprint, send_from_directory, redirect, render_template, url_for
 from flask_flatpages import Page, pygments_style_defs
-from six import iteritems, PY3
+from six import iteritems
 
 import yaml
 
@@ -32,37 +32,35 @@ class StaticFlask(Blueprint):
         self.blueprint_root = False
         self.entries = CategorizedPages()
         self.reserved_paths = ['/cdn', '/media'] #TODO: Check for clashes?
-        app = kwargs.pop('app', None)
-        if app is not None:
+        self.app = kwargs.pop('app', None)
+        if self.app is not None:
+            cfg_filename=kwargs.pop('cfg_filename', 'settings.yml')
             self.initialize(
-                app,
-                cfg_filename=kwargs.pop('cfg_filename', 'settings.yml')
+                self.app,
+                cfg_filename=cfg_filename
             )
         if 'root_path' in kwargs:
             self.blueprint_root = True
         if 'static_folder' not in kwargs:
             template_folder = kwargs.get('template_folder', 'templates')
             kwargs['static_folder'] = join(template_folder, 'static')
-        if PY3:
-            super().__init__(blueprint_name, import_name, **kwargs)
-        else:
-            super(StaticFlask, self).__init__(blueprint_name, import_name,
-                                              **kwargs)
+        super(StaticFlask, self).__init__(blueprint_name, import_name,
+                                          **kwargs)
 
     @property
     def root(self):
         if self.blueprint_root:
             file_root = self.root_path
         else:
-            if self.app.instance_relative_config:
+            if self.app.config.root_path == self.app.instance_path:
                 file_root = self.app.instance_path
             else:
                 file_root = self.app.root_path
         return file_root
-    
-    def initialize(self, app, **kwargs):
+
+    def initialize(self, app, cfg_filename=None):
         self.app = app
-        self._load_config(app, **kwargs)
+        self._load_config(cfg_filename)
         self.entries.init_app(app)
 
     def _load_config(self, cfg_filename):
@@ -74,8 +72,12 @@ class StaticFlask(Blueprint):
                 cfg = yaml.load(cfg_file)
             app_config = cfg.pop('flask_config', {})
             template_config = cfg.pop('template_config', {})
+            debug_config = app_config.pop('debug', {})
             for key, val in iteritems(app_config): #TODO: Validation? Required params? Debug?
                 self.app.config[key.upper()] = val
+            if self.app.debug:
+                for key, val in debug_config:
+                    self.app.config[key.upper()] = val
             for key, val in iteritems(template_config):
                 self.app.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val
         else:
@@ -91,14 +93,16 @@ class StaticFlask(Blueprint):
         for key, val in self.default_config:
             self.app.config.setdefault(key, val)#TODO: Default template config?
 
-    def register(self, app, *args, **kwargs):
+    def register(self, app, options, first_registration=False):
         if self.app is None:
-            self.initialize(app, cfg_filename=kwargs.pop('cfg_filename'))
-        self.setup_routes()
-        if PY3:
-            super().register(self, app, *args, **kwargs)
-        else:
-            super(StaticFlask, self).register(self, app, *args, **kwargs)
+            self.initialize(
+                app, cfg_filename=options.pop('cfg_filename', 'settings.yml')
+            )
+        if not self.deferred_functions:
+            self.setup_routes()
+        super(StaticFlask, self).register(
+            app, options, first_registration=first_registration
+        )
 
     def serve_page_media(self, filename):
         return send_from_directory(
@@ -116,7 +120,9 @@ class StaticFlask(Blueprint):
             return render_template(
                 post_template,
                 page=entry,
-                template_params=self.app.config.get_namespace('SFLASK_TEMPLATE')
+                template_params=self.app.config.get_namespace(
+                    'SFLASK_TEMPLATE_'
+                )
             )
         included_posts = entry.included_posts(self.entries)
         included_categories = entry.included_categories(self.entries)
@@ -126,7 +132,7 @@ class StaticFlask(Blueprint):
             'category' : entry,
             'sub_categories' : included_categories,
             'parents': parents,
-            'template_params': self.app.config.get_namespace('SFLASK_TEMPLATE')
+            'template_params': self.app.config.get_namespace('SFLASK_TEMPLATE_')
         }
         if entry['paginate']:
             included_posts = included_posts[:self.app.config['PAGINATE_STEP']]
@@ -156,7 +162,7 @@ class StaticFlask(Blueprint):
             posts=included_posts,
             sub_categories=included_categories,
             parents=parents,
-            template_params = self.app.config.get_namespace('SFLASK_TEMPLATE')
+            template_params=self.app.config.get_namespace('SFLASK_TEMPLATE_')
         )
 
     @staticmethod
@@ -165,14 +171,7 @@ class StaticFlask(Blueprint):
         return pygments_style_defs('tango'), 200, {'Content-Type': 'text/css'}
 
     def setup_routes(self):
-        """Walk through the entries in the initialized FlatPages instance
-        and create routes for them. Fails in the FlatPages instance has not been"""
-        if not hasattr(self.entries, 'app'):
-            raise ValueError(
-                'The FlatPages instance at `StaticFlask.entries` must be '
-                'initialised with the application before the Blueprint creates '
-                'routes.'
-                )
+        """Binds url rules for the StaticFlask app."""
         self.add_url_rule('/<path:path>', 'path', self.render_path)
         self.add_url_rule('/<path:path>/<int:page>', 'paginated', self.render_paginated)
         self.add_url_rule('/media/<path:filename>', 'media', self.serve_page_media)

@@ -3,6 +3,7 @@
 from os.path import isfile, join, split
 import re
 
+from flask_flatpages import Page
 from six import iteritems, PY3
 from werkzeug.utils import cached_property
 
@@ -159,7 +160,10 @@ class Category():
             if any(regex.search(entry.path) for regex in self['exclude_from']):
                 return False
         if depth < 0:
-            return self.path in entry.path and self.path != entry.path
+            if isinstance(entry, Page):
+                return self.path in entry.path
+            else:
+                return self.path in entry.path and self.path != entry.path
         if depth == 0:
             return self.path == entry.path.rpartition('/')[0]     
         if compat_rsplit(entry.path, '/', maxsplit=depth) == self.path:
