@@ -18,6 +18,14 @@ setup(
         'Programming Language :: Python :: 3.7'
     ],
     packages=['StaticFlask'],
+    package_data={
+        'StaticFlask': [
+            'templates/base.html',
+            'templates/index.html',
+            'templates/page.html',
+            'templates/category.html'
+        ]
+    },
     install_requires=[
         'Flask>=1.0',
         'Flask-Flatpages>=0.7.0.dev0',
