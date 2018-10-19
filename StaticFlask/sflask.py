@@ -237,6 +237,7 @@ class StaticFlask(Blueprint):
             root_dir = root.lstrip(self.root)
             if root_dir.startswith('//'): #TODO: Why is this needed on linux?
                 root_dir = '/media/' + root_dir.lstrip('/')
+            print(root, root_dir)
             for file in filenames:
                 yield('/'+root_dir+'/'+file)
 
