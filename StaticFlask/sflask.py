@@ -7,15 +7,23 @@ routes for the Staticflask site.
 
 """
 
+from os import walk
 from os.path import isfile, join
 
 from flask import abort, Blueprint, redirect, render_template, send_from_directory, url_for
 from flask_flatpages import Page, pygments_style_defs
+from flask_frozen import Freezer
 from six import iteritems
 
 import yaml
 
 from .categorized_pages import CategorizedPages
+
+def get_n_pages(n_posts, paginate_step):
+    top_page = n_posts//paginate_step
+    if n_posts%paginate_step > 0:
+        top_page += 1
+    return top_page
 
 class StaticFlask(Blueprint):
 
@@ -31,6 +39,7 @@ class StaticFlask(Blueprint):
         import_name = kwargs.pop('import_name', 'StaticFlask')
         self.blueprint_root = False
         self.entries = CategorizedPages()
+        self.freezer = Freezer()
         self.reserved_paths = ['static','/media'] #TODO: Check for clashes?
         self.app = kwargs.pop('app', None)
         if self.app is not None:
@@ -66,6 +75,8 @@ class StaticFlask(Blueprint):
         self.app = app
         self._load_config(cfg_filename)
         self.entries.init_app(app) #TODO: What about flatpages name?
+        self.freezer.init_app(app)
+        self.register_generators()
 
     def _load_config(self, cfg_filename):
         """Load the StaticFlask config and apply the configuration to the
@@ -154,6 +165,9 @@ class StaticFlask(Blueprint):
         return render_template(template, **template_data)
 
     def home_paginated(self, page):
+        root = self.entries.get('')
+        if not root['paginate']:
+            return redirect('/')
         return self.render_paginated('', page)
 
     def render_paginated(self, path, page):
@@ -168,9 +182,8 @@ class StaticFlask(Blueprint):
         post_slice_upper = page*self.app.config['PAGINATE_STEP']
         included_posts = entry.included_posts(self.entries)
         if len(included_posts) < post_slice_lower:
-            top_page = len(included_posts)//self.app.config['PAGINATE_STEP']
-            if len(included_posts)%self.app.config['PAGINATE_STEP'] > 0:
-                top_page += 1
+            top_page = get_n_pages(len(included_posts),
+                                   self.app.config['PAGINATE_STEP'])
             return redirect(url_for('static_flask.paginated', path=entry.path,
                              page=top_page))
         included_posts = included_posts[post_slice_lower:post_slice_upper]
@@ -200,3 +213,31 @@ class StaticFlask(Blueprint):
         self.add_url_rule('/media/<path:filename>', 'media',
                           self.serve_page_media)
         self.add_url_rule('/pygments.css', 'pygments_css', self.pygments_css)
+
+    def yield_entries(self):
+        for entry in self.entries:
+            yield '/'+entry.path
+
+    def yield_paginated_pages(self):
+        for category in self.entries.iter_categories():
+            if not category['paginate']:
+                continue
+            n_posts = len(category.included_posts(self.entries))
+            top_page = get_n_pages(n_posts, self.app.config['PAGINATE_STEP'])
+            for pagenum in range(1, top_page+1):
+                if category.path == '':
+                    yield '/{pagenum}'.format(pagenum=pagenum)
+                else:
+                    yield '/{path}/{pagenum}'.format(path=category.path,
+                                                     pagenum=pagenum)
+
+    def yield_media(self):
+        for root, dirname, filenames in walk(join(self.root, 'media')):
+            root_dir = root.lstrip('.')
+            for file in filenames:
+                yield(root_dir+'/'+file)
+
+    def register_generators(self):
+        self.freezer.register_generator(self.yield_entries)
+        self.freezer.register_generator(self.yield_paginated_pages)
+        self.freezer.register_generator(self.yield_media)

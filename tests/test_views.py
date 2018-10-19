@@ -146,3 +146,47 @@ def test_pagination(registered_app):
         resp = app.test_client().get('/root_included/lots_of_pages/2')
         template, context = rendered_template[0]
         assert context['posts'] == all_posts[5:10]
+
+def test_freezer_generators(registered_app):
+    app, sflask = registered_app()
+    entry_urls = (
+        '/root_included/lots_of_pages/page-4'
+        '/root_included/lots_of_pages/page-6'
+        '/root_excluded/depth_1/foo'
+        '/root_included/default_config/bar'
+        '/root_included/lots_of_pages/page-1'
+        '/root_excluded/foo0'
+        '/about'
+        '/root_included/lots_of_pages/page-5'
+        '/root_excluded/depth_1/depth_2/foo2'
+        '/root_included/draft'
+        '/root_included/lots_of_pages/page-3'
+        '/root_included/lots_of_pages/page-7'
+        '/root_excluded/depth_1/depth_2/depth_3/foo3'
+        '/root_included/lots_of_pages/page-2'
+        '/root_included/custom_display/post_type'
+    )
+    paginate_urls = (
+        '/1'
+        '/2'
+        '/3'
+        '/root_included/lots_of_pages/1'
+        '/root_included/lots_of_pages/2'
+    )
+    media_urls = (
+        '/Users/padraic/Repositories/StaticFlask_Upgrade/tests/media/Foo_was_here.jpg'
+    )
+    other_urls = (
+        '/static/style.css'
+        '/pygments.css'
+        '/'
+    )
+    for url in sflask.yield_entries():
+        assert url in entry_urls
+    for url in sflask.yield_paginated_pages():
+        assert url in paginate_urls
+    for url in sflask.yield_media():
+        assert url in media_urls
+    all_urls = entry_urls + paginate_urls + media_urls + other_urls
+    for url in sflask.freezer.all_urls():
+        assert url in all_urls
