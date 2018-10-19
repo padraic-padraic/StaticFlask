@@ -234,8 +234,9 @@ class StaticFlask(Blueprint):
     def yield_media(self):
         for root, dirname, filenames in walk(join(self.root, 'media')):
             root_dir = root.lstrip('.')
+            root_dir = root.lstrip(self.root)
             for file in filenames:
-                yield(root_dir+'/'+file)
+                yield('/'+root_dir+'/'+file)
 
     def register_generators(self):
         self.freezer.register_generator(self.yield_entries)
