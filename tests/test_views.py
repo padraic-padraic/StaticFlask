@@ -174,7 +174,7 @@ def test_freezer_generators(registered_app):
         '/root_included/lots_of_pages/2'
     )
     media_urls = (
-        '/Users/padraic/Repositories/StaticFlask_Upgrade/tests/media/Foo_was_here.jpg'
+        '/media/Foo_was_here.jpg'
     )
     other_urls = (
         '/static/style.css'

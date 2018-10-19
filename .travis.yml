@@ -9,4 +9,4 @@ install:
   - pip install pipenv
 
 script:
-  - pipenv install --dev && pipenv run pip install ./ && pipenv run pytest --cov==StaticFlask -v
+  - pipenv install --dev && pipenv run pip install -e ./ && pipenv run pytest --cov==StaticFlask -v
