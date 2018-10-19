@@ -3,7 +3,7 @@
   <head>
     {% block head %}
       <title>{% block title %} {% endblock%}</title>
-      <link rel="stylesheet" href="{{ url_for('static_flask.static','style.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static_flask.static',filename='style.css') }}">
       <link rel="stylesheet" href="{{ url_for('static_flask.pygments_css') }}">
       {% block link %}
       {% endblock %}

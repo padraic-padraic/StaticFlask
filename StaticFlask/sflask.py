@@ -9,7 +9,7 @@ routes for the Staticflask site.
 
 from os.path import isfile, join
 
-from flask import Blueprint, send_from_directory, redirect, render_template, url_for
+from flask import abort, Blueprint, redirect, render_template, send_from_directory, url_for
 from flask_flatpages import Page, pygments_style_defs
 from six import iteritems
 
@@ -31,18 +31,22 @@ class StaticFlask(Blueprint):
         import_name = kwargs.pop('import_name', 'StaticFlask')
         self.blueprint_root = False
         self.entries = CategorizedPages()
-        self.reserved_paths = ['/cdn', '/media'] #TODO: Check for clashes?
+        self.reserved_paths = ['static','/media'] #TODO: Check for clashes?
         self.app = kwargs.pop('app', None)
         if self.app is not None:
-            cfg_filename=kwargs.pop('cfg_filename', 'settings.yml')
+            cfg_filename = kwargs.pop('cfg_filename', 'settings.yml')
             self.initialize(
                 self.app,
                 cfg_filename=cfg_filename
             )
         if 'root_path' in kwargs:
             self.blueprint_root = True
-        if 'static_folder' not in kwargs:
-            template_folder = kwargs.get('template_folder', 'templates')
+        template_folder = kwargs.get('template_folder')
+        if template_folder is None:
+            template_folder = 'templates'
+            kwargs['template_folder'] = template_folder
+        static_folder = kwargs.get('static_folder')
+        if static_folder is None:
             kwargs['static_folder'] = join(template_folder, 'static')
         super(StaticFlask, self).__init__(blueprint_name, import_name,
                                           **kwargs)
@@ -58,10 +62,10 @@ class StaticFlask(Blueprint):
                 file_root = self.app.root_path
         return file_root
 
-    def initialize(self, app, cfg_filename=None):
+    def initialize(self, app, cfg_filename='settings.yml'):
         self.app = app
         self._load_config(cfg_filename)
-        self.entries.init_app(app)
+        self.entries.init_app(app) #TODO: What about flatpages name?
 
     def _load_config(self, cfg_filename):
         """Load the StaticFlask config and apply the configuration to the
@@ -105,13 +109,21 @@ class StaticFlask(Blueprint):
         )
 
     def serve_page_media(self, filename):
+        path = join(self.root, 'media', filename)
+        if not isfile(path):
+            print(path)
+            abort(404)
         return send_from_directory(
-            join((self.root, 'media')), filename
+            join(self.root, 'media'), filename
         )
 
+    def render_root(self):
+        return self.render_path('')
+
     def render_path(self, path):
-        entry = self.entries.get(path)
+        entry = self.entries.get_or_404(path)
         if isinstance(entry, Page):
+            category = self.entries.get(entry.path.rpartition('/')[0])
             post_type = entry.meta.get('post_type', '')
             if post_type:
                 post_template = '{}_page.html'.format(post_type)
@@ -120,6 +132,7 @@ class StaticFlask(Blueprint):
             return render_template(
                 post_template,
                 page=entry,
+                category=category,
                 template_params=self.app.config.get_namespace(
                     'SFLASK_TEMPLATE_'
                 )
@@ -140,22 +153,29 @@ class StaticFlask(Blueprint):
         template_data['posts'] = included_posts
         return render_template(template, **template_data)
 
+    def home_paginated(self, page):
+        return self.render_paginated('', page)
+
     def render_paginated(self, path, page):
-        entry = self.entries.get(path)
+        entry = self.entries.get_or_404(path)
         if isinstance(entry, Page):
-            redirect(url_for('static_flask.path', path=entry.path))
+            return redirect(url_for('static_flask.path', path=entry.path))
         if page < 1 or not entry['paginate']:
-            redirect(url_for('static_flask.path', path=entry.path))
+            return redirect(url_for('static_flask.path', path=entry.path))
         included_categories = entry.included_categories(self.entries)
         parents = entry.get_parents(self.entries)
         post_slice_lower = (page-1)*self.app.config['PAGINATE_STEP']
-        post_slice_upper = (page-1)*self.app.config['PAGINATE_STEP']
+        post_slice_upper = page*self.app.config['PAGINATE_STEP']
         included_posts = entry.included_posts(self.entries)
         if len(included_posts) < post_slice_lower:
             top_page = len(included_posts)//self.app.config['PAGINATE_STEP']
-            redirect(url_for('static_flask.paginate', path=entry.path,
+            if len(included_posts)%self.app.config['PAGINATE_STEP'] > 0:
+                top_page += 1
+            return redirect(url_for('static_flask.paginated', path=entry.path,
                              page=top_page))
         included_posts = included_posts[post_slice_lower:post_slice_upper]
+        print(post_slice_lower, post_slice_upper)
+        print(included_posts)
         return render_template(
             entry['template'],
             category=entry,
@@ -172,7 +192,11 @@ class StaticFlask(Blueprint):
 
     def setup_routes(self):
         """Binds url rules for the StaticFlask app."""
+        self.add_url_rule('/', 'home', self.render_root)
+        self.add_url_rule('/<int:page>', 'home_paginated', self.home_paginated)
         self.add_url_rule('/<path:path>', 'path', self.render_path)
-        self.add_url_rule('/<path:path>/<int:page>', 'paginated', self.render_paginated)
-        self.add_url_rule('/media/<path:filename>', 'media', self.serve_page_media)
+        self.add_url_rule('/<path:path>/<int:page>', 'paginated',
+                          self.render_paginated)
+        self.add_url_rule('/media/<path:filename>', 'media',
+                          self.serve_page_media)
         self.add_url_rule('/pygments.css', 'pygments_css', self.pygments_css)

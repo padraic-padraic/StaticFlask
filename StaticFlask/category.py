@@ -4,7 +4,7 @@ from os.path import isfile, join, split
 import re
 
 from flask_flatpages import Page
-from six import iteritems, PY3
+from six import iteritems, iterkeys, PY3
 from werkzeug.utils import cached_property
 
 import yaml
@@ -48,8 +48,9 @@ class Category():
     default_config = (
         ('display_type', 'category'),
         ('subcategory_depth', 1),
-        ('paginate', False),
-        ('exclude_from', '')
+        ('exclude_from', ''),
+        ('post_sort_key',''),
+        ('post_sort_reverse',False)
     )
 
     display_defaults = {
@@ -59,6 +60,9 @@ class Category():
         },
         'category': {
             'template': 'category.html',
+            'paginate': False
+        },
+        'custom': {
             'paginate': False
         }
     }
@@ -186,6 +190,10 @@ class Category():
         """Fetch the pages to be included with this category.
         We cache the result"""
         pages = self._included_entries(pages_instance.iter_pages())
+        if self['post_sort_key']:
+            post_key = self['post_sort_key']
+            post_reverse = self['post_sort_reverse']
+            pages.sort(key=lambda x: x.meta.get(post_key), reverse=post_reverse)
         return pages
 
     @cached_category_item
@@ -198,3 +206,8 @@ class Category():
         parents = [pages_instance.get(parent)
                    for parent in self.config['parents']]
         return parents
+
+    def reload(self):
+        keys = list(iterkeys(self._cache))
+        for key in keys:
+            del self._cache[key]

@@ -7,6 +7,6 @@
 <h2> {{category.custom_string}}</h2>
 <h2> Posts </h2>
 {% for post in posts %}
-  <h3><a href="{{url_for('static_flask.path, path=post.path)}}">{{post.title}</a>}</h3>
+  <h3><a href="{{url_for('static_flask.path', path=post.path)}}">{{post.title}}</a></h3>
 {% endfor %}
 {% endblock %}

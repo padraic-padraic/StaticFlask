@@ -25,7 +25,9 @@ def test_default_conf(pages_root):
         'subcategory_depth' : 1,
         'paginate': False,
         'exclude_from': '',
-        'template': 'category.html'
+        'template': 'category.html',
+        'post_sort_key': '',
+        'post_sort_reverse': False
     }
 
 def test_name():
