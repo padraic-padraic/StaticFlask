@@ -1,0 +1,4 @@
+display_type: custom
+template: custom_category.html
+subcategory_depth: 0
+custom_string: What's good!

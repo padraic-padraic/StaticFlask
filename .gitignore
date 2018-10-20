@@ -1,10 +1,10 @@
 *.pyc
-python-markdown-math/*
 venv/*
 Files/*
 *~
 node_modules/*
 StaticFlask/static/images/*
-py-gfm/*
 StaticFlask/pages/.gitignore
 StaticFlask/pages/*.md
+Pipfile.lock
+.DS_Store

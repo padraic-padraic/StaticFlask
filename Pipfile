@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+frozen-flask = "*"
+python-markdown-math = "*"
+pyyaml = "*"
+flask = "*"
+six = "*"
+"flask-flatpages-0-7-0-dev0" = {editable = true, ref = "markdown-3", git = "https://github.com/padraic-padraic/Flask-Flatpages.git"}
+pygments = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+blinker = "*"
+
+[requires]
+python_version = "3.7"

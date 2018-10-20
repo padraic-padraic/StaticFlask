@@ -1,0 +1,5 @@
+include StaticFlask/templates/*.html
+include StaticFlask/templates/static/*.css
+include StaticFlask/templates/static/*.js
+
+prune .DS_Store
