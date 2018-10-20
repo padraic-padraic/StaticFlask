@@ -233,15 +233,14 @@ class StaticFlask(Blueprint):
 
     def yield_media(self):
         for root, dirname, filenames in walk(join(self.root, 'media')):
-            root_dir = root.lstrip('.')
-            root_dir = root.lstrip(self.root)
-            if root_dir.startswith('//'): #TODO: Why is this needed on linux?
-                root_dir = 'media/' + root_dir.lstrip('/')
+            root_dir = root.replace(self.root, '')
+            if not root_dir.startswith('/'):
+                root_dir = '/' + root_dir
             print('Walk root: {}'.format(root))
             print('SFLASK root: {}'.format(self.root))
             print('Genereated_root: {}'.format(root_dir))
             for file in filenames:
-                yield('/'+root_dir+'/'+file)
+                yield(root_dir+'/'+file)
 
     def register_generators(self):
         self.freezer.register_generator(self.yield_entries)
