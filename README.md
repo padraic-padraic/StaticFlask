@@ -10,10 +10,10 @@ StaticFlask pages are categorized using the file system. Each folder defines a c
 The Blueprint itself can also be configured with a small yaml file. This is used to set the pages and media folder, configure the FlatPages instance, and set other config values in the `Flask` application.
 
 On registration, StaticFlask sets up the categories and pages, and registers routes:
-    - `/<path>`: Load the category or page at the path
-    - `/<path>/<page_number>`: Load the paginated pages in the category at `path`
-    - `/media/<path>`: Serve images and other media
-    - `/static/`: Serve CSS and JS and other static files.
+- `/<path>`: Load the category or page at the path
+- `/<path>/<page_number>`: Load the paginated pages in the category at `path`
+- `/media/<path>`: Serve images and other media
+- `/static/`: Serve CSS and JS and other static files.
 
 StaticFlask also sets up an instance of `flask_frozen.Freezer` provided by the [FrozenFlask](https://github.com/Frozen-Flask/Frozen-Flask) extension, and registers generators for building a static site from the resulting application.
 
