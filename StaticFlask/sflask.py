@@ -232,13 +232,12 @@ class StaticFlask(Blueprint):
                                                      pagenum=pagenum)
 
     def yield_media(self):
-        for root, dirname, filenames in walk(join(self.root, 'media')):
+        for root, dirnames, filenames in walk(join(self.root, 'media')):
+            filenames = [f for f in filenames if not f[0] == '.']
+            dirnames = [d for d in dirnames if not d[0] == '.']
             root_dir = root.replace(self.root, '')
             if not root_dir.startswith('/'):
                 root_dir = '/' + root_dir
-            print('Walk root: {}'.format(root))
-            print('SFLASK root: {}'.format(self.root))
-            print('Genereated_root: {}'.format(root_dir))
             for file in filenames:
                 yield(root_dir+'/'+file)
 

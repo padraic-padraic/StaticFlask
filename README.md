@@ -1,4 +1,4 @@
-Static Flask
+Static Flask [![Build Status](https://travis-ci.org/padraic-padraic/StaticFlask.svg?branch=master)](https://travis-ci.org/padraic-padraic/StaticFlask)
 ===========
 
 This is a small project to create a Jekyll-like blogging tool using markdown formatted pages and Flask, to be run as a personal blog. As such it also includes `py-markdown-math` for escaping LaTeX commands in Markdown.

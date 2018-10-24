@@ -9,8 +9,8 @@ python-markdown-math = "*"
 pyyaml = "*"
 flask = "*"
 six = "*"
-"flask-flatpages-0-7-0-dev0" = {editable = true, ref = "markdown-3", git = "https://github.com/padraic-padraic/Flask-Flatpages.git"}
 pygments = "*"
+flask-flatpages = "==0.7.0"
 
 [dev-packages]
 pytest = "*"
