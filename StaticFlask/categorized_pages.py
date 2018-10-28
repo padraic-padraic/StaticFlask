@@ -55,7 +55,7 @@ class CategorizedPages(FlatPages):
 
     def __iter__(self):
         paths = set((path for path in iterkeys(self._pages)))
-        paths.union(set((path for path in iterkeys(self._categories))))
+        paths |= set((path for path in iterkeys(self._categories)))
         for path in paths:
             yield self.get(path)
 

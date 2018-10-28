@@ -40,7 +40,7 @@ class StaticFlask(Blueprint):
         self.blueprint_root = False
         self.entries = CategorizedPages()
         self.freezer = Freezer()
-        self.reserved_paths = ['static','/media'] #TODO: Check for clashes?
+        self.reserved_paths = ['static','media'] #TODO: Check for clashes?
         self.app = kwargs.pop('app', None)
         if self.app is not None:
             cfg_filename = kwargs.pop('cfg_filename', 'settings.yml')
