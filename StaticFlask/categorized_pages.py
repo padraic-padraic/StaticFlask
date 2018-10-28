@@ -1,7 +1,9 @@
+import os
 import re
 
 from flask import abort
 from flask_flatpages import FlatPages
+from flask_flatpages.compat import string_types
 from six import iterkeys, itervalues
 from werkzeug.utils import cached_property
 
@@ -73,9 +75,27 @@ class CategorizedPages(FlatPages):
 
     @cached_property
     def _categories(self):
-        paths = set(path.rpartition('/')[0]
-                    for path in iterkeys(self._pages))
-        categories = {path: Category(self.root, path) for path in paths}
+        extension = self.config('extension')
+
+        # Support for multiple extensions
+        if isinstance(extension, string_types):
+            if ',' in extension:
+                extension = tuple(extension.split(','))
+            else:
+                extension = (extension, )
+        elif isinstance(extension, (list, set)):
+            extension = tuple(extension)
+        extensions = extension + ('.yml',)
+        def category_walker():
+            for root_dir, dirs, files in os.walk(self.root):
+                dirs = [_dir for _dir in dirs if not _dir.startswith('.')]
+                if any(os.path.splitext(_file)[1] in extensions
+                       for _file in files):
+                    path = root_dir.replace(self.root, '').lstrip(os.sep)
+                    yield path
+        categories = {
+            path: Category(self.root, path) for path in category_walker()
+        }
         self._check_path_clashes(categories)
         return categories
 

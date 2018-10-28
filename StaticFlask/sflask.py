@@ -122,7 +122,6 @@ class StaticFlask(Blueprint):
     def serve_page_media(self, filename):
         path = join(self.root, 'media', filename)
         if not isfile(path):
-            print(path)
             abort(404)
         return send_from_directory(
             join(self.root, 'media'), filename
