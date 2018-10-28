@@ -91,7 +91,7 @@ class StaticFlask(Blueprint):
             for key, val in iteritems(app_config): #TODO: Validation? Required params? Debug?
                 self.app.config[key.upper()] = val
             if self.app.debug:
-                for key, val in debug_config:
+                for key, val in iteritems(debug_config):
                     self.app.config[key.upper()] = val
             for key, val in iteritems(template_config):
                 self.app.config['SFLASK_TEMPLATE_{}'.format(key.upper())] = val

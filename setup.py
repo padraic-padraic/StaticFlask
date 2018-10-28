@@ -30,8 +30,9 @@ setup(
         'Flask>=1.0',
         'Flask-Flatpages>=0.7.0',
         'Frozen-Flask',
-        'six',
-        'python-markdown-math'
+        'Pygments',
+        'python-markdown-math',
+        'six'
     ],
     python_requires='>=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4',
 )

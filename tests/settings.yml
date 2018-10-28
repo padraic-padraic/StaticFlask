@@ -1,6 +1,6 @@
 flask_config:
   paginate_step: 5
-  freezer_base_url: http://padraic.xyz
+  freezer_base_url: http://dummy.xyz
   debug:
     freezer_base_url: http://localhost/
 template_config:
