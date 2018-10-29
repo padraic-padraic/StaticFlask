@@ -9,15 +9,6 @@ from werkzeug.utils import cached_property
 
 import yaml
 
-if PY3:
-    def compat_rsplit(path, sep, maxsplit=-1):
-        """Wraps rsplit for python 3"""
-        return path.rsplit(sep, maxsplit=maxsplit)
-else:
-    def compat_rsplit(path, sep, maxsplit=-1):
-        """Wraps rsplit for python 2"""
-        return path.rsplit(sep, maxsplit)
-
 def cached_category_item(func):
     """Wraps a Category method, caching the result for quick reuse. """
     def cache_wrapper(self, *args, **kwargs):
@@ -83,6 +74,9 @@ class Category():
         self._cfg_file = cfg_file
         self._file_path = join(pages_root, relative_path.lstrip('/'), cfg_file)
         self._cache = {}
+
+    def __repr__(self):
+        return '<Category {path}'.format(path=self.path)
 
     def _load_config(self):
         config = {}
@@ -164,24 +158,21 @@ class Category():
             if any(regex.search(entry.path) for regex in self['exclude_from']):
                 return False
         if depth < 0:
-            if isinstance(entry, Page):
-                return self.path in entry.path
-            else:
-                return self.path in entry.path and self.path != entry.path
-        if depth == 0:
-            return self.path == entry.path.rpartition('/')[0]     
-        if compat_rsplit(entry.path, '/', maxsplit=depth) == self.path:
-            return True
-        return False
-
+            return self.path in entry.path and self.path != entry.path
+        if isinstance(entry, Page):
+            depth += 1
+        relative_path = entry.path.replace(self.path, '')
+        return (relative_path and relative_path.count('/') == depth and 
+            self.path in entry.path)
+    
     def _included_entries(self, collection):
         entries = []
         if self['subcategory_depth'] == -1:
-            entries = [entry for entry in collection
+            entries = [entry for entry in collection()
                        if self.sub_entry_key(entry, -1)]
         else:
             for depth in range(self['subcategory_depth']+1):
-                entries += [entry for entry in collection
+                entries += [entry for entry in collection()
                             if self.sub_entry_key(entry, depth)]
         return entries
 
@@ -189,7 +180,7 @@ class Category():
     def included_posts(self, pages_instance):
         """Fetch the pages to be included with this category.
         We cache the result"""
-        pages = self._included_entries(pages_instance.iter_pages())
+        pages = self._included_entries(pages_instance.iter_pages)
         if self['post_sort_key']:
             post_key = self['post_sort_key']
             post_reverse = self['post_sort_reverse']
@@ -198,7 +189,7 @@ class Category():
 
     @cached_category_item
     def included_categories(self, pages_instance):
-        categories = self._included_entries(pages_instance.iter_categories())
+        categories = self._included_entries(pages_instance.iter_categories)
         return categories
 
     @cached_category_item

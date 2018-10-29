@@ -91,7 +91,6 @@ def test_iterators(local_catpages, expected_pages, expected_categories):
     all_items = set()
     all_items |= expected_pages
     all_items |= expected_categories
-    print(set((entry.path for entry in local_catpages)).difference(all_items))
     assert set(
         (entry.path for entry in local_catpages)
     ).difference(all_items) == set()
@@ -115,5 +114,3 @@ def test_reload(local_catpages):
     local_catpages.reload()
     assert '_categories' not in local_catpages.__dict__
     assert '_pages' not in local_catpages.__dict__
-
-

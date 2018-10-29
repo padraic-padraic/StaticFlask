@@ -96,11 +96,8 @@ def test_included_pages_depth(local_catpages):
         assert p.path in expected
     for depth in range(4):
         cat.config['subcategory_depth'] = depth
-        print(depth, cat['subcategory_depth'])
         pages = cat.included_posts(local_catpages, force_reload=True)
-        print(pages)
-        for p in pages:
-            assert p.path in expected[:depth+1]
+        assert set(p.path for p in pages) == set(expected[:depth+1])
 
 def test_exclude_from(local_catpages):
     cat = local_catpages.get('')
@@ -113,10 +110,21 @@ def test_exclude_from(local_catpages):
 def test_sub_categories(local_catpages):
     cat = local_catpages.get('')
     sub_categories = cat.included_categories(local_catpages)
-    expected = [
+    expected = set([
         'root_included',
         'root_included/custom_display',
         'root_included/default_config',
         'root_included/lots_of_pages'
+    ])
+    assert set(sub_cat.path for sub_cat in sub_categories) == expected
+    cat2 = local_catpages.get('root_excluded')
+    sub_categories = cat2.included_categories(local_catpages)
+    expected = [
+        'root_excluded/depth_1',
+        'root_excluded/depth_1/depth_2',
+        'root_excluded/depth_1/depth_2/depth_3'        
     ]
-    assert all(sub_cat.path in expected for sub_cat in sub_categories)
+    for depth in range(4):
+        cat2.config['subcategory_depth'] = depth
+        sub_categories = cat2.included_categories(local_catpages, force_reload=True)
+        assert set(s.path for s in sub_categories) == set(expected[:depth])
