@@ -55,6 +55,10 @@ class Category():
         },
         'custom': {
             'paginate': False
+        },
+        'home': {
+            'template': 'home_index.html',
+            'paginate': True
         }
     }
 

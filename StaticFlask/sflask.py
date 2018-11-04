@@ -40,7 +40,7 @@ class StaticFlask(Blueprint):
         self.blueprint_root = False
         self.entries = CategorizedPages()
         self.freezer = Freezer()
-        self.reserved_paths = ['static','media'] #TODO: Check for clashes?
+        self.reserved_paths = ['static', 'media'] #TODO: Check for clashes?
         self.app = kwargs.pop('app', None)
         if self.app is not None:
             cfg_filename = kwargs.pop('cfg_filename', 'settings.yml')
@@ -205,9 +205,9 @@ class StaticFlask(Blueprint):
     def setup_routes(self):
         """Binds url rules for the StaticFlask app."""
         self.add_url_rule('/', 'home', self.render_root)
-        self.add_url_rule('/<int:page>', 'home_paginated', self.home_paginated)
-        self.add_url_rule('/<path:path>', 'path', self.render_path)
-        self.add_url_rule('/<path:path>/<int:page>', 'paginated',
+        self.add_url_rule('/<int:page>/', 'home_paginated', self.home_paginated)
+        self.add_url_rule('/<path:path>/', 'path', self.render_path)
+        self.add_url_rule('/<path:path>/<int:page>/', 'paginated',
                           self.render_paginated)
         self.add_url_rule('/media/<path:filename>', 'media',
                           self.serve_page_media)
@@ -215,7 +215,7 @@ class StaticFlask(Blueprint):
 
     def yield_entries(self):
         for entry in self.entries:
-            yield '/'+entry.path
+            yield (self.name + '.path', {'path': entry.path})
 
     def yield_paginated_pages(self):
         for category in self.entries.iter_categories():
@@ -225,20 +225,24 @@ class StaticFlask(Blueprint):
             top_page = get_n_pages(n_posts, self.app.config['PAGINATE_STEP'])
             for pagenum in range(1, top_page+1):
                 if category.path == '':
-                    yield '/{pagenum}'.format(pagenum=pagenum)
+                    yield (self.name + '.home_paginated', {'page':pagenum})
                 else:
-                    yield '/{path}/{pagenum}'.format(path=category.path,
-                                                     pagenum=pagenum)
+                    yield (self.name + '.paginated',
+                           {
+                               'page':pagenum,
+                               'path': category.path
+                           }
+                    )
+
 
     def yield_media(self):
         for root, dirnames, filenames in walk(join(self.root, 'media')):
+            #Ignore hidden files/dirs
             filenames = [f for f in filenames if not f[0] == '.']
             dirnames = [d for d in dirnames if not d[0] == '.']
-            root_dir = root.replace(self.root, '')
-            if not root_dir.startswith('/'):
-                root_dir = '/' + root_dir
+            root_dir = root.replace(join(self.root, 'media'), '')
             for file in filenames:
-                yield(root_dir+'/'+file)
+                yield (self.name + '.media', {'filename': root_dir + file})
 
     def register_generators(self):
         self.freezer.register_generator(self.yield_entries)

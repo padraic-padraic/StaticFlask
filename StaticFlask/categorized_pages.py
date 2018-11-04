@@ -4,6 +4,7 @@ import re
 from flask import abort
 from flask_flatpages import FlatPages
 from flask_flatpages.compat import string_types
+from werkzeug.utils import import_string
 from six import iterkeys, itervalues
 from werkzeug.utils import cached_property
 
@@ -11,13 +12,17 @@ from .category import Category
 
 NUMERIC_REGEXP = re.compile(r'/\d+')
 
+def include_test(post):
+    return not post.draft
+
 class CategorizedPages(FlatPages):
 
     extra_default_config = (
         ('markdown_extensions', ['codehilite', 'toc', 'mdx_math']),
         ('case_insensitive', True),
         ('instance_folder', False),
-        ('extension', '.md')
+        ('extension', '.md'),
+        ('include_test', include_test)
     )
 
     def __init__(self, app=None, name=None):
@@ -70,6 +75,10 @@ class CategorizedPages(FlatPages):
     @cached_property
     def _pages(self):
         pages = super(CategorizedPages, self)._pages
+        include_test = self.config('include_test')
+        if not callable(include_test):
+            include_test = import_string(include_test)
+        pages = [page for page in pages if include_test(page)]
         self._check_path_clashes(pages)
         return pages
 
