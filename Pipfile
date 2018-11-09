@@ -11,6 +11,7 @@ flask = "*"
 six = "*"
 pygments = "*"
 flask-flatpages = "==0.7.0"
+staticflask = {editable = true, path = "."}
 
 [dev-packages]
 pytest = "*"

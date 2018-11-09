@@ -15,7 +15,6 @@ def expected_pages():
         'root_excluded/depth_1/foo',
         'root_excluded/depth_1/depth_2/foo2',
         'root_excluded/depth_1/depth_2/depth_3/foo3',
-        'root_included/draft',
         'root_included/custom_display/post_type',
         'root_included/default_config/bar',
         'root_included/lots_of_pages/page-1',
@@ -40,6 +39,9 @@ def expected_categories():
         'root_excluded/depth_1/depth_2',
         'root_excluded/depth_1/depth_2/depth_3'
     ))
+
+def dummy_include_func(page):
+    return True
 
 def test_init(mocker):
     catpages = CategorizedPages()
@@ -114,3 +116,12 @@ def test_reload(local_catpages):
     local_catpages.reload()
     assert '_categories' not in local_catpages.__dict__
     assert '_pages' not in local_catpages.__dict__
+
+def test_custom_include_func(expected_pages):
+    app = Flask(__name__)
+    app.config['FLATPAGES_ROOT'] = 'pages'
+    app.config['FLATPAGES_INCLUDE_TEST'] = dummy_include_func
+    pages = CategorizedPages(app)
+    all_pages = expected_pages | set(('root_included/draft',))
+    found_pages = set((page.path for page in pages.iter_pages()))
+    assert found_pages == all_pages

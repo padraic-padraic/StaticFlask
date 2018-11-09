@@ -27,7 +27,8 @@ def test_default_conf(pages_root):
         'exclude_from': '',
         'template': 'category.html',
         'post_sort_key': '',
-        'post_sort_reverse': False
+        'post_sort_reverse': False,
+        'dummy_var': 'foo'
     }
 
 def test_name():

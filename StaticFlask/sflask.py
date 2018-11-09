@@ -181,8 +181,11 @@ class StaticFlask(Blueprint):
         post_slice_upper = page*self.app.config['PAGINATE_STEP']
         included_posts = entry.included_posts(self.entries)
         if len(included_posts) < post_slice_lower:
+            print(len(included_posts))
             top_page = get_n_pages(len(included_posts),
                                    self.app.config['PAGINATE_STEP'])
+            print(self.app.config['PAGINATE_STEP'])
+            print(top_page)
             return redirect(url_for('static_flask.paginated', path=entry.path,
                              page=top_page))
         included_posts = included_posts[post_slice_lower:post_slice_upper]

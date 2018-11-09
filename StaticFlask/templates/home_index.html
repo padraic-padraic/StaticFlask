@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %} An Simple Static Site {% endblock %}
+{% block content %}
+{% for post in posts %}
+  <article class="post">
+      <a href="{{ url_for('static_flask.path', path=post.path) }}"><h2>{{post.title}}</h2></a>
+      {% if post.read_more %}
+      <a href="{{ url_for('static_flask.path', path=post.path) }}">Read more</a>
+      {% endif %}
+  </article>
+  <hr>
+{% endfor %}
+{% if next %}
+<div id="buttons">
+{% if prevpage > 0 %}
+<a id="prev" href="{{ url_for('static_flask.home_paginated', path=category.path, page=prevpage)}}">Prev page </a>
+{% endif%}
+<a id="next" href="{{ url_for('static_flask.home_paginated', path=category.path, page=nextpage) }}">Next page</a>
+</div>
+{% endif %}
+{% endblock %}

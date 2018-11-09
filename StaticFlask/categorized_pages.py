@@ -5,7 +5,7 @@ from flask import abort
 from flask_flatpages import FlatPages
 from flask_flatpages.compat import string_types
 from werkzeug.utils import import_string
-from six import iterkeys, itervalues
+from six import iteritems, iterkeys, itervalues
 from werkzeug.utils import cached_property
 
 from .category import Category
@@ -13,7 +13,7 @@ from .category import Category
 NUMERIC_REGEXP = re.compile(r'/\d+')
 
 def include_test(post):
-    return not post.draft
+    return not post.meta.get('draft', False)
 
 class CategorizedPages(FlatPages):
 
@@ -78,7 +78,8 @@ class CategorizedPages(FlatPages):
         include_test = self.config('include_test')
         if not callable(include_test):
             include_test = import_string(include_test)
-        pages = [page for page in pages if include_test(page)]
+        pages = {path: page for path, page in iteritems(pages)
+                 if include_test(page)}
         self._check_path_clashes(pages)
         return pages
 
