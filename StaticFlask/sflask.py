@@ -180,24 +180,26 @@ class StaticFlask(Blueprint):
         post_slice_lower = (page-1)*self.app.config['PAGINATE_STEP']
         post_slice_upper = page*self.app.config['PAGINATE_STEP']
         included_posts = entry.included_posts(self.entries)
+        top_page = get_n_pages(len(included_posts),
+                               self.app.config['PAGINATE_STEP'])
         if len(included_posts) < post_slice_lower:
-            print(len(included_posts))
-            top_page = get_n_pages(len(included_posts),
-                                   self.app.config['PAGINATE_STEP'])
-            print(self.app.config['PAGINATE_STEP'])
-            print(top_page)
             return redirect(url_for('static_flask.paginated', path=entry.path,
-                             page=top_page))
+                                    page=top_page))
         included_posts = included_posts[post_slice_lower:post_slice_upper]
-        print(post_slice_lower, post_slice_upper)
-        print(included_posts)
+        template_data = {
+            'category': entry,
+            'posts': included_posts,
+            'sub_categories': included_categories,
+            'parents': parents,
+            'template_params': self.app.config.get_namespace('SFLASK_TEMPLATE_')
+        }
+        if page != 1:
+            template_data['prevpage'] = page-1
+        if page < top_page:
+            template_data['nextpage'] = page+1
         return render_template(
             entry['template'],
-            category=entry,
-            posts=included_posts,
-            sub_categories=included_categories,
-            parents=parents,
-            template_params=self.app.config.get_namespace('SFLASK_TEMPLATE_')
+            **template_data
         )
 
     @staticmethod

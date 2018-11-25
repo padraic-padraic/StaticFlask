@@ -12,10 +12,12 @@
 {% endfor %}
 {% if next %}
 <div id="buttons">
-{% if prevpage > 0 %}
-<a id="prev" href="{{ url_for('static_flask.home_paginated', path=category.path, page=prevpage)}}">Prev page </a>
-{% endif%}
-<a id="next" href="{{ url_for('static_flask.home_paginated', path=category.path, page=nextpage) }}">Next page</a>
+{% if prevpage %}
+<a id="prev" href="{{ url_for('static_flask.paginated', path=category.path, page=prevpage)}}">Prev page </a>
+{% endif %}
+{% if nextpage %}
+<a id="next" href="{{ url_for('static_flask.paginated', path=category.path, page=nextpage) }}">Next page</a>
+{% endif %}
 </div>
 {% endif %}
 {% endblock %}
