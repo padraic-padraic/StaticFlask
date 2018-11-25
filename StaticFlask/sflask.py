@@ -157,7 +157,8 @@ class StaticFlask(Blueprint):
             'parents': parents,
             'template_params': self.app.config.get_namespace('SFLASK_TEMPLATE_')
         }
-        if entry['paginate']:
+        pagination_step = self.app.config['PAGINATE_STEP']
+        if entry['paginate'] and len(included_posts) > pagination_step:
             included_posts = included_posts[:self.app.config['PAGINATE_STEP']]
             template_data['nextpage'] = 2
         template_data['posts'] = included_posts
